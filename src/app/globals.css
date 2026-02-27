@@ -1,0 +1,59 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap');
+
+@layer base {
+  :root {
+    --background: 220 20% 4%;
+    --foreground: 228 20% 93%;
+    --card: 222 18% 10%;
+    --card-foreground: 228 20% 93%;
+    --popover: 222 18% 10%;
+    --popover-foreground: 228 20% 93%;
+    --primary: 155 72% 49%;
+    --primary-foreground: 220 20% 4%;
+    --secondary: 222 16% 14%;
+    --secondary-foreground: 228 20% 93%;
+    --muted: 222 16% 14%;
+    --muted-foreground: 226 12% 50%;
+    --accent: 155 72% 49%;
+    --accent-foreground: 220 20% 4%;
+    --destructive: 352 76% 59%;
+    --destructive-foreground: 228 20% 93%;
+    --border: 222 16% 17%;
+    --input: 222 16% 17%;
+    --ring: 155 72% 49%;
+    --radius: 0.5rem;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-brand-bg text-brand-text font-sans antialiased;
+  }
+
+  /* Custom scrollbar for dark theme */
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: #0f1218;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: #2a3142;
+    border-radius: 4px;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: #3a4252;
+  }
+}
