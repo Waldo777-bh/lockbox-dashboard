@@ -45,8 +45,8 @@ export function BrowserExtension() {
           <div className="mt-3 flex items-center gap-2">
             <Button size="sm" asChild>
               <a
-                href="/downloads/lockbox-extension-latest.zip"
-                download="lockbox-extension.zip"
+                href="/downloads/lockbox-extension.crx"
+                download="lockbox-extension.crx"
               >
                 <Download className="mr-2 h-4 w-4" />
                 Download Extension
@@ -109,7 +109,7 @@ export function BrowserExtension() {
               1
             </span>
             <span className="text-brand-text-secondary">
-              Click <strong className="text-brand-text">Download Extension</strong> above and unzip the file
+              Click <strong className="text-brand-text">Download Extension</strong> above to download the <code className="rounded bg-brand-bg px-1.5 py-0.5 font-mono text-xs text-brand-text">.crx</code> file
             </span>
           </li>
           <li className="flex gap-3">
@@ -125,7 +125,7 @@ export function BrowserExtension() {
               3
             </span>
             <span className="text-brand-text-secondary">
-              Click <strong className="text-brand-text">Load unpacked</strong> and select the unzipped folder
+              Drag and drop the <code className="rounded bg-brand-bg px-1.5 py-0.5 font-mono text-xs text-brand-text">lockbox-extension.crx</code> file onto the extensions page
             </span>
           </li>
           <li className="flex gap-3">
@@ -133,7 +133,7 @@ export function BrowserExtension() {
               4
             </span>
             <span className="text-brand-text-secondary">
-              Click the Lockbox icon in the toolbar and sign in
+              Click <strong className="text-brand-text">Add extension</strong> on the prompt, then sign in from the toolbar icon
             </span>
           </li>
         </ol>
