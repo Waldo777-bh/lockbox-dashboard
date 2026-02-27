@@ -1,4 +1,3 @@
-import { Lock, KeyRound, Activity } from "lucide-react";
 import { getCurrentUser } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { PageTransition } from "@/components/layout/page-transition";
@@ -74,19 +73,19 @@ export default async function DashboardPage() {
           <AnimatedStatCard
             value={vaultCount}
             label="Total Vaults"
-            icon={Lock}
+            iconName="lock"
             href="/dashboard/vaults"
           />
           <AnimatedStatCard
             value={keyCount}
             label="Total Keys"
-            icon={KeyRound}
+            iconName="keyRound"
             href="/dashboard/vaults"
           />
           <AnimatedStatCard
             value={recentLogs.length}
             label="Recent Activity"
-            icon={Activity}
+            iconName="activity"
             href="/dashboard/audit"
           />
         </div>

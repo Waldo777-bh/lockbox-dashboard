@@ -2,14 +2,22 @@
 
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { type LucideIcon, TrendingUp, TrendingDown } from "lucide-react";
+import { Lock, KeyRound, Activity, TrendingUp, TrendingDown } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
+
+const iconMap = {
+  lock: Lock,
+  keyRound: KeyRound,
+  activity: Activity,
+} as const;
+
+type IconName = keyof typeof iconMap;
 
 interface AnimatedStatCardProps {
   value: number;
   label: string;
-  icon: LucideIcon;
+  iconName: IconName;
   href: string;
   trend?: {
     value: number;
@@ -24,10 +32,11 @@ function easeOut(t: number): number {
 export function AnimatedStatCard({
   value,
   label,
-  icon: Icon,
+  iconName,
   href,
   trend,
 }: AnimatedStatCardProps) {
+  const Icon = iconMap[iconName];
   const [displayValue, setDisplayValue] = useState(0);
   const frameRef = useRef<number>(0);
 
