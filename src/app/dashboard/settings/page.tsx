@@ -7,6 +7,7 @@ import {
   KeyRound,
   AlertTriangle,
   ExternalLink,
+  Chrome,
 } from "lucide-react";
 import Link from "next/link";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -22,6 +23,7 @@ import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
 import { DeleteAccountDialog } from "@/components/settings/delete-account-dialog";
 import { CliSetup } from "@/components/settings/cli-setup";
+import { BrowserExtension } from "@/components/settings/browser-extension";
 import { PageTransition } from "@/components/layout/page-transition";
 
 export default function SettingsPage() {
@@ -48,6 +50,10 @@ export default function SettingsPage() {
             <TabsTrigger value="cli" className="gap-1.5">
               <Terminal className="h-4 w-4" />
               CLI Setup
+            </TabsTrigger>
+            <TabsTrigger value="extension" className="gap-1.5">
+              <Chrome className="h-4 w-4" />
+              Extension
             </TabsTrigger>
             <TabsTrigger value="tokens" className="gap-1.5">
               <KeyRound className="h-4 w-4" />
@@ -122,6 +128,21 @@ export default function SettingsPage() {
               </CardHeader>
               <CardContent>
                 <CliSetup />
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          {/* Browser Extension Tab */}
+          <TabsContent value="extension">
+            <Card>
+              <CardHeader>
+                <CardTitle>Browser Extension</CardTitle>
+                <CardDescription>
+                  Install the Lockbox Chrome extension for quick access to your keys
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <BrowserExtension />
               </CardContent>
             </Card>
           </TabsContent>
