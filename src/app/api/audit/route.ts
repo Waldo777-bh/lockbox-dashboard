@@ -9,6 +9,7 @@ export async function GET(req: Request) {
     const { searchParams } = new URL(req.url);
 
     const action = searchParams.get("action");
+    const search = searchParams.get("search");
     const since = searchParams.get("since");
     const limit = Math.min(
       parseInt(searchParams.get("limit") ?? "50"),
@@ -20,6 +21,13 @@ export async function GET(req: Request) {
     const where: Record<string, unknown> = { userId: user.id };
     if (action) where.action = action;
     if (since) where.createdAt = { gte: new Date(since) };
+    if (search) {
+      where.OR = [
+        { action: { contains: search, mode: "insensitive" } },
+        { service: { contains: search, mode: "insensitive" } },
+        { keyName: { contains: search, mode: "insensitive" } },
+      ];
+    }
 
     const [logs, total] = await Promise.all([
       db.auditLog.findMany({

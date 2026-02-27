@@ -21,6 +21,9 @@ export async function POST(req: Request) {
     const vault = await db.vault.create({
       data: {
         name: parsed.data.name,
+        description: parsed.data.description ?? null,
+        color: parsed.data.color ?? "#22d68a",
+        emoji: parsed.data.emoji ?? "lock",
         userId: user.id,
       },
     });
@@ -45,18 +48,44 @@ export async function POST(req: Request) {
 }
 
 // GET /api/vaults — List user's vaults
-export async function GET() {
+export async function GET(req: Request) {
   try {
     const user = await getCurrentUser();
+    const { searchParams } = new URL(req.url);
+    const q = searchParams.get("q");
+    const sort = searchParams.get("sort") || "updatedAt";
+    const order = searchParams.get("order") || "desc";
+
+    const where: Record<string, unknown> = { userId: user.id };
+    if (q) {
+      where.OR = [
+        { name: { contains: q, mode: "insensitive" } },
+        { description: { contains: q, mode: "insensitive" } },
+      ];
+    }
+
+    // Validate sort and order params
+    const validSorts = ["name", "updatedAt", "keyCount"];
+    const validOrders = ["asc", "desc"];
+    const safeSort = validSorts.includes(sort) ? sort : "updatedAt";
+    const safeOrder = validOrders.includes(order) ? order : "desc";
+
+    // Build orderBy based on sort param
+    let orderBy: Record<string, unknown>;
+    if (safeSort === "keyCount") {
+      orderBy = { keys: { _count: safeOrder } };
+    } else {
+      orderBy = { [safeSort]: safeOrder };
+    }
 
     const vaults = await db.vault.findMany({
-      where: { userId: user.id },
+      where,
       include: {
         _count: {
           select: { keys: true },
         },
       },
-      orderBy: { updatedAt: "desc" },
+      orderBy,
     });
 
     return NextResponse.json(vaults);

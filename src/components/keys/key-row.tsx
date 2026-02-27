@@ -1,8 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { toast } from "sonner";
-import { Eye, EyeOff, Copy, Loader2 } from "lucide-react";
+import { Eye, EyeOff, Copy, Check, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { TableCell, TableRow } from "@/components/ui/table";
@@ -27,6 +27,30 @@ export function KeyRow({ vaultId, keyData }: KeyRowProps) {
   const [revealed, setRevealed] = useState(false);
   const [value, setValue] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [copied, setCopied] = useState(false);
+
+  // Auto-hide revealed value after 10 seconds
+  useEffect(() => {
+    if (!revealed) return;
+
+    const timer = setTimeout(() => {
+      setRevealed(false);
+      setValue(null);
+    }, 10000);
+
+    return () => clearTimeout(timer);
+  }, [revealed]);
+
+  // Reset copied state after 2 seconds
+  useEffect(() => {
+    if (!copied) return;
+
+    const timer = setTimeout(() => {
+      setCopied(false);
+    }, 2000);
+
+    return () => clearTimeout(timer);
+  }, [copied]);
 
   async function toggleReveal() {
     if (revealed) {
@@ -73,6 +97,7 @@ export function KeyRow({ vaultId, keyData }: KeyRowProps) {
       }
 
       await navigator.clipboard.writeText(val!);
+      setCopied(true);
       toast.success("Copied to clipboard");
     } catch (error) {
       toast.error(
@@ -81,16 +106,22 @@ export function KeyRow({ vaultId, keyData }: KeyRowProps) {
     }
   }
 
+  const lockboxUri = `lockbox://${keyData.service}/${keyData.keyName}`;
+
   return (
     <TableRow>
-      <TableCell className="font-mono text-sm text-brand-accent">
-        {keyData.service}
+      <TableCell>
+        <div>
+          <span className="font-mono text-sm text-brand-accent">
+            {keyData.service}
+          </span>
+        </div>
       </TableCell>
       <TableCell className="font-mono text-sm">{keyData.keyName}</TableCell>
       <TableCell>
         <div className="flex items-center gap-2">
           <span className="font-mono text-sm text-brand-text-muted">
-            {revealed && value ? value : "••••••••••••••••"}
+            {revealed && value ? value : "\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022"}
           </span>
         </div>
       </TableCell>
@@ -131,7 +162,11 @@ export function KeyRow({ vaultId, keyData }: KeyRowProps) {
             className="h-8 w-8"
             onClick={copyToClipboard}
           >
-            <Copy className="h-4 w-4" />
+            {copied ? (
+              <Check className="h-4 w-4 text-brand-accent" />
+            ) : (
+              <Copy className="h-4 w-4" />
+            )}
             <span className="sr-only">Copy</span>
           </Button>
 
@@ -150,6 +185,11 @@ export function KeyRow({ vaultId, keyData }: KeyRowProps) {
             service={keyData.service}
             keyName={keyData.keyName}
           />
+        </div>
+        <div className="mt-1">
+          <span className="font-mono text-[11px] text-brand-text-muted">
+            {lockboxUri}
+          </span>
         </div>
       </TableCell>
     </TableRow>

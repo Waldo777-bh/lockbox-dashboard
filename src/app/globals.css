@@ -26,6 +26,8 @@
     --input: 222 16% 17%;
     --ring: 155 72% 49%;
     --radius: 0.5rem;
+    --sidebar-width: 256px;
+    --sidebar-collapsed-width: 64px;
   }
 }
 

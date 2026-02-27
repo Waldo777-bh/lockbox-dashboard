@@ -1,5 +1,92 @@
+"use client";
+
+import { useState, useEffect, useCallback } from "react";
+import { useRouter } from "next/navigation";
 import { Sidebar } from "@/components/layout/sidebar";
 import { Header } from "@/components/layout/header";
+import { BottomNav } from "@/components/layout/bottom-nav";
+import { CommandPalette } from "@/components/layout/command-palette";
+import { ShortcutsDialog } from "@/components/shared/shortcuts-dialog";
+import { SidebarProvider, useSidebarContext } from "@/components/providers/sidebar-provider";
+
+function DashboardContent({ children }: { children: React.ReactNode }) {
+  const { collapsed } = useSidebarContext();
+  const [searchOpen, setSearchOpen] = useState(false);
+  const [shortcutsOpen, setShortcutsOpen] = useState(false);
+  const [isDesktop, setIsDesktop] = useState(false);
+  const router = useRouter();
+
+  // Global keyboard shortcuts
+  const handleKeyDown = useCallback(
+    (e: KeyboardEvent) => {
+      // Ignore when typing in inputs
+      const target = e.target as HTMLElement;
+      if (
+        target.tagName === "INPUT" ||
+        target.tagName === "TEXTAREA" ||
+        target.isContentEditable
+      ) {
+        return;
+      }
+
+      // Cmd/Ctrl + K = Search
+      if ((e.metaKey || e.ctrlKey) && e.key === "k") {
+        e.preventDefault();
+        setSearchOpen((open) => !open);
+        return;
+      }
+
+      // Cmd/Ctrl + N = Navigate to create vault
+      if ((e.metaKey || e.ctrlKey) && e.key === "n") {
+        e.preventDefault();
+        router.push("/dashboard/vaults");
+        return;
+      }
+
+      // ? = Open shortcuts dialog
+      if (e.key === "?" && !e.metaKey && !e.ctrlKey) {
+        e.preventDefault();
+        setShortcutsOpen(true);
+        return;
+      }
+    },
+    [router]
+  );
+
+  useEffect(() => {
+    document.addEventListener("keydown", handleKeyDown);
+    return () => document.removeEventListener("keydown", handleKeyDown);
+  }, [handleKeyDown]);
+
+  // Track desktop breakpoint for sidebar padding
+  useEffect(() => {
+    const mq = window.matchMedia("(min-width: 1024px)");
+    setIsDesktop(mq.matches);
+    const handler = (e: MediaQueryListEvent) => setIsDesktop(e.matches);
+    mq.addEventListener("change", handler);
+    return () => mq.removeEventListener("change", handler);
+  }, []);
+
+  const paddingLeft = isDesktop ? (collapsed ? 64 : 256) : 0;
+
+  return (
+    <div className="min-h-screen bg-brand-bg">
+      <Sidebar />
+      <div
+        className="transition-[padding] duration-200"
+        style={{ paddingLeft }}
+      >
+        <Header onOpenSearch={() => setSearchOpen(true)} />
+        <main className="px-4 py-8 pb-24 sm:px-6 md:pb-8 lg:px-8">
+          {children}
+        </main>
+      </div>
+      <BottomNav />
+      <CommandPalette open={searchOpen} onOpenChange={setSearchOpen} />
+      <ShortcutsDialog open={shortcutsOpen} onOpenChange={setShortcutsOpen} />
+    </div>
+  );
+}
 
 export default function DashboardLayout({
   children,
@@ -7,12 +94,8 @@ export default function DashboardLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="min-h-screen bg-brand-bg">
-      <Sidebar />
-      <div className="lg:pl-64">
-        <Header />
-        <main className="px-4 py-8 sm:px-6 lg:px-8">{children}</main>
-      </div>
-    </div>
+    <SidebarProvider>
+      <DashboardContent>{children}</DashboardContent>
+    </SidebarProvider>
   );
 }

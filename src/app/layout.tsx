@@ -5,10 +5,19 @@ import { Toaster } from "sonner";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Lockbox Dashboard",
-  description: "Manage your encrypted API key vaults",
+  title: {
+    default: "Lockbox Dashboard",
+    template: "%s | Lockbox",
+  },
+  description: "Securely manage your encrypted API keys and secrets",
   icons: {
     icon: "/favicon.ico",
+  },
+  openGraph: {
+    title: "Lockbox Dashboard",
+    description: "Securely manage your encrypted API keys and secrets",
+    type: "website",
+    siteName: "Lockbox",
   },
 };
 

@@ -11,6 +11,15 @@ export async function getCurrentUser() {
   // Try to find existing user
   let user = await db.user.findUnique({
     where: { clerkId: userId },
+    select: {
+      id: true,
+      clerkId: true,
+      email: true,
+      onboardingCompleted: true,
+      onboardingStep: true,
+      createdAt: true,
+      updatedAt: true,
+    },
   });
 
   // Fallback: create user if webhook didn't fire
@@ -21,6 +30,15 @@ export async function getCurrentUser() {
         clerkId: userId,
         email:
           clerkUser?.emailAddresses[0]?.emailAddress ?? "unknown@example.com",
+      },
+      select: {
+        id: true,
+        clerkId: true,
+        email: true,
+        onboardingCompleted: true,
+        onboardingStep: true,
+        createdAt: true,
+        updatedAt: true,
       },
     });
   }

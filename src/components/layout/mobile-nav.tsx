@@ -3,15 +3,9 @@
 import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import {
-  LayoutDashboard,
-  Lock,
-  ScrollText,
-  KeyRound,
-  Settings,
-  Menu,
-} from "lucide-react";
+import { Lock, Menu } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { navItems } from "@/lib/navigation";
 import {
   Sheet,
   SheetContent,
@@ -20,14 +14,6 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
-
-const navItems = [
-  { label: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
-  { label: "Vaults", href: "/dashboard/vaults", icon: Lock },
-  { label: "Audit Log", href: "/dashboard/audit", icon: ScrollText },
-  { label: "API Keys", href: "/dashboard/api-keys", icon: KeyRound },
-  { label: "Settings", href: "/dashboard/settings", icon: Settings },
-];
 
 export function MobileNav() {
   const [open, setOpen] = useState(false);
@@ -69,7 +55,7 @@ export function MobileNav() {
                       "flex items-center gap-x-3 rounded-md px-3 py-2 text-sm font-medium transition-colors",
                       isActive
                         ? "border-l-2 border-brand-accent bg-brand-accent/10 text-brand-accent"
-                        : "text-brand-text-secondary hover:bg-brand-card hover:text-brand-text"
+                        : "border-l-2 border-transparent text-brand-text-secondary hover:bg-brand-card hover:text-brand-text"
                     )}
                   >
                     <item.icon className="h-5 w-5 shrink-0" />
