@@ -1,0 +1,79 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String     @id @default(cuid())
+  clerkId   String     @unique
+  email     String
+  vaults    Vault[]
+  apiKeys   ApiKey[]
+  auditLogs AuditLog[]
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+}
+
+model Vault {
+  id        String   @id @default(cuid())
+  name      String
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  keys      Key[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId])
+}
+
+model Key {
+  id             String   @id @default(cuid())
+  service        String
+  keyName        String
+  encryptedValue String
+  iv             String
+  tag            String
+  keyVersion     Int      @default(1)
+  project        String?
+  notes          String?
+  vaultId        String
+  vault          Vault    @relation(fields: [vaultId], references: [id], onDelete: Cascade)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  @@unique([vaultId, service, keyName])
+  @@index([vaultId])
+}
+
+model AuditLog {
+  id        String   @id @default(cuid())
+  action    String
+  service   String?
+  keyName   String?
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  metadata  Json?
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+  @@index([createdAt])
+}
+
+model ApiKey {
+  id        String    @id @default(cuid())
+  name      String
+  hashedKey String    @unique
+  prefix    String
+  userId    String
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  lastUsed  DateTime?
+  expiresAt DateTime?
+  createdAt DateTime  @default(now())
+
+  @@index([userId])
+  @@index([hashedKey])
+}
