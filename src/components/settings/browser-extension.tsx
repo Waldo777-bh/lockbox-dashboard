@@ -45,8 +45,8 @@ export function BrowserExtension() {
           <div className="mt-3 flex items-center gap-2">
             <Button size="sm" asChild>
               <a
-                href="/downloads/lockbox-extension.crx"
-                download="lockbox-extension.crx"
+                href="/downloads/lockbox-extension.zip"
+                download="lockbox-extension.zip"
               >
                 <Download className="mr-2 h-4 w-4" />
                 Download Extension
@@ -109,7 +109,7 @@ export function BrowserExtension() {
               1
             </span>
             <span className="text-brand-text-secondary">
-              Click <strong className="text-brand-text">Download Extension</strong> above to download the <code className="rounded bg-brand-bg px-1.5 py-0.5 font-mono text-xs text-brand-text">.crx</code> file
+              Click <strong className="text-brand-text">Download Extension</strong> above and extract the zip
             </span>
           </li>
           <li className="flex gap-3">
@@ -125,7 +125,7 @@ export function BrowserExtension() {
               3
             </span>
             <span className="text-brand-text-secondary">
-              Drag and drop the <code className="rounded bg-brand-bg px-1.5 py-0.5 font-mono text-xs text-brand-text">lockbox-extension.crx</code> file onto the extensions page
+              Click <strong className="text-brand-text">Load unpacked</strong> and select the <code className="rounded bg-brand-bg px-1.5 py-0.5 font-mono text-xs text-brand-text">lockbox-extension</code> folder
             </span>
           </li>
           <li className="flex gap-3">
@@ -133,7 +133,7 @@ export function BrowserExtension() {
               4
             </span>
             <span className="text-brand-text-secondary">
-              Click <strong className="text-brand-text">Add extension</strong> on the prompt, then sign in from the toolbar icon
+              Click the Lockbox icon in the toolbar and sign in
             </span>
           </li>
         </ol>
