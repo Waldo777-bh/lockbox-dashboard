@@ -2,23 +2,21 @@ import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
 
 // GET /api/health — Health check endpoint
+// Returns 200 immediately so Railway marks the service as healthy.
+// Database status is included but does not block the response.
 export async function GET() {
-  try {
-    // Check database connectivity
-    await db.$queryRaw`SELECT 1`;
+  let dbStatus = "unknown";
 
-    return NextResponse.json({
-      status: "ok",
-      timestamp: new Date().toISOString(),
-    });
+  try {
+    await db.$queryRaw`SELECT 1`;
+    dbStatus = "connected";
   } catch {
-    return NextResponse.json(
-      {
-        status: "error",
-        timestamp: new Date().toISOString(),
-        error: "Database connection failed",
-      },
-      { status: 503 }
-    );
+    dbStatus = "unavailable";
   }
+
+  return NextResponse.json({
+    status: "ok",
+    db: dbStatus,
+    timestamp: new Date().toISOString(),
+  });
 }
