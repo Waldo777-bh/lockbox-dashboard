@@ -45,9 +45,8 @@ export function BrowserExtension() {
           <div className="mt-3 flex items-center gap-2">
             <Button size="sm" asChild>
               <a
-                href="https://github.com/Waldo777-bh/lockbox-extension/releases"
-                target="_blank"
-                rel="noopener noreferrer"
+                href="/downloads/lockbox-extension-latest.zip"
+                download="lockbox-extension.zip"
               >
                 <Download className="mr-2 h-4 w-4" />
                 Download Extension
@@ -110,15 +109,7 @@ export function BrowserExtension() {
               1
             </span>
             <span className="text-brand-text-secondary">
-              Download or clone the extension from{" "}
-              <a
-                href="https://github.com/Waldo777-bh/lockbox-extension"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-brand-accent hover:underline"
-              >
-                GitHub
-              </a>
+              Click <strong className="text-brand-text">Download Extension</strong> above and unzip the file
             </span>
           </li>
           <li className="flex gap-3">
@@ -126,7 +117,7 @@ export function BrowserExtension() {
               2
             </span>
             <span className="text-brand-text-secondary">
-              Run <code className="rounded bg-brand-bg px-1.5 py-0.5 font-mono text-xs text-brand-text">npm install && npm run build</code>
+              Open <code className="rounded bg-brand-bg px-1.5 py-0.5 font-mono text-xs text-brand-text">chrome://extensions</code> and enable Developer mode
             </span>
           </li>
           <li className="flex gap-3">
@@ -134,20 +125,12 @@ export function BrowserExtension() {
               3
             </span>
             <span className="text-brand-text-secondary">
-              Open <code className="rounded bg-brand-bg px-1.5 py-0.5 font-mono text-xs text-brand-text">chrome://extensions</code> and enable Developer mode
+              Click <strong className="text-brand-text">Load unpacked</strong> and select the unzipped folder
             </span>
           </li>
           <li className="flex gap-3">
             <span className="flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full bg-brand-bg-tertiary text-xs font-medium text-brand-text-secondary">
               4
-            </span>
-            <span className="text-brand-text-secondary">
-              Click <strong className="text-brand-text">Load unpacked</strong> and select the <code className="rounded bg-brand-bg px-1.5 py-0.5 font-mono text-xs text-brand-text">dist</code> folder
-            </span>
-          </li>
-          <li className="flex gap-3">
-            <span className="flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full bg-brand-bg-tertiary text-xs font-medium text-brand-text-secondary">
-              5
             </span>
             <span className="text-brand-text-secondary">
               Click the Lockbox icon in the toolbar and sign in
