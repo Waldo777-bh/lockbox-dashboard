@@ -4,9 +4,8 @@ import { Chrome, Download, Puzzle, KeyRound, Search, Lock, ExternalLink } from "
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 
-// TODO: Replace with your actual Chrome Web Store listing URL after publishing
 const CHROME_STORE_URL =
-  "https://chromewebstore.google.com/detail/lockbox-api-key-vault/EXTENSION_ID_HERE";
+  "https://chromewebstore.google.com/detail/lockbox-api-key-vault/bcjcdgpmgmbibgngbkhfobidmnfddefa";
 
 function Feature({
   icon: Icon,
