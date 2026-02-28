@@ -1,8 +1,12 @@
 "use client";
 
-import { Chrome, Download, Puzzle, KeyRound, Search, Lock } from "lucide-react";
+import { Chrome, Download, Puzzle, KeyRound, Search, Lock, ExternalLink } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
+
+// TODO: Replace with your actual Chrome Web Store listing URL after publishing
+const CHROME_STORE_URL =
+  "https://chromewebstore.google.com/detail/lockbox-api-key-vault/EXTENSION_ID_HERE";
 
 function Feature({
   icon: Icon,
@@ -45,11 +49,12 @@ export function BrowserExtension() {
           <div className="mt-3 flex items-center gap-2">
             <Button size="sm" asChild>
               <a
-                href="/downloads/lockbox-extension.zip"
-                download="lockbox-extension.zip"
+                href={CHROME_STORE_URL}
+                target="_blank"
+                rel="noopener noreferrer"
               >
-                <Download className="mr-2 h-4 w-4" />
-                Download Extension
+                <Chrome className="mr-2 h-4 w-4" />
+                Add to Chrome
               </a>
             </Button>
             <Button variant="outline" size="sm" asChild>
@@ -98,10 +103,10 @@ export function BrowserExtension() {
 
       <Separator />
 
-      {/* Installation steps */}
+      {/* How it works */}
       <div>
         <h4 className="text-sm font-medium text-brand-text-secondary mb-3">
-          Installation
+          How it works
         </h4>
         <ol className="space-y-3 text-sm">
           <li className="flex gap-3">
@@ -109,7 +114,7 @@ export function BrowserExtension() {
               1
             </span>
             <span className="text-brand-text-secondary">
-              Click <strong className="text-brand-text">Download Extension</strong> above and extract the zip
+              Click <strong className="text-brand-text">Add to Chrome</strong> above and confirm the install
             </span>
           </li>
           <li className="flex gap-3">
@@ -117,7 +122,7 @@ export function BrowserExtension() {
               2
             </span>
             <span className="text-brand-text-secondary">
-              Open <code className="rounded bg-brand-bg px-1.5 py-0.5 font-mono text-xs text-brand-text">chrome://extensions</code> and enable Developer mode
+              Click the Lockbox icon in your toolbar and sign in
             </span>
           </li>
           <li className="flex gap-3">
@@ -125,15 +130,7 @@ export function BrowserExtension() {
               3
             </span>
             <span className="text-brand-text-secondary">
-              Click <strong className="text-brand-text">Load unpacked</strong> and select the <code className="rounded bg-brand-bg px-1.5 py-0.5 font-mono text-xs text-brand-text">lockbox-extension</code> folder
-            </span>
-          </li>
-          <li className="flex gap-3">
-            <span className="flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full bg-brand-bg-tertiary text-xs font-medium text-brand-text-secondary">
-              4
-            </span>
-            <span className="text-brand-text-secondary">
-              Click the Lockbox icon in the toolbar and sign in
+              Search, copy, and auto-fill your keys from anywhere
             </span>
           </li>
         </ol>
