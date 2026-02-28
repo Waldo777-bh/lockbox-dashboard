@@ -8,6 +8,7 @@ import {
   AlertTriangle,
   ExternalLink,
   Chrome,
+  CreditCard,
 } from "lucide-react";
 import Link from "next/link";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -24,6 +25,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { DeleteAccountDialog } from "@/components/settings/delete-account-dialog";
 import { CliSetup } from "@/components/settings/cli-setup";
 import { BrowserExtension } from "@/components/settings/browser-extension";
+import { Subscription } from "@/components/settings/subscription";
 import { PageTransition } from "@/components/layout/page-transition";
 
 export default function SettingsPage() {
@@ -46,6 +48,10 @@ export default function SettingsPage() {
             <TabsTrigger value="profile" className="gap-1.5">
               <User className="h-4 w-4" />
               Profile
+            </TabsTrigger>
+            <TabsTrigger value="subscription" className="gap-1.5">
+              <CreditCard className="h-4 w-4" />
+              Subscription
             </TabsTrigger>
             <TabsTrigger value="cli" className="gap-1.5">
               <Terminal className="h-4 w-4" />
@@ -115,6 +121,11 @@ export default function SettingsPage() {
                 )}
               </CardContent>
             </Card>
+          </TabsContent>
+
+          {/* Subscription Tab */}
+          <TabsContent value="subscription">
+            <Subscription />
           </TabsContent>
 
           {/* CLI Setup Tab */}

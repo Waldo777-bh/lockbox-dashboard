@@ -4,6 +4,7 @@ import { db } from "@/lib/db";
 import { createKeySchema } from "@/lib/validations";
 import { encryptValue } from "@/lib/crypto";
 import { createAuditLog, AuditAction } from "@/lib/audit";
+import { checkKeyLimit } from "@/lib/tier";
 
 // POST /api/vaults/[id]/keys — Add a key to a vault
 export async function POST(
@@ -14,6 +15,15 @@ export async function POST(
     const user = await getCurrentUser();
     const { id: vaultId } = await params;
     const body = await req.json();
+
+    // Check tier key limit
+    const limitCheck = await checkKeyLimit(user.id);
+    if (!limitCheck.allowed) {
+      return NextResponse.json(
+        { error: limitCheck.message, code: "TIER_LIMIT" },
+        { status: 403 }
+      );
+    }
 
     // Verify vault ownership
     const vault = await db.vault.findFirst({

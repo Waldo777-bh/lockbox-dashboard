@@ -3,8 +3,9 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import { Plus, Loader2, Eye, EyeOff } from "lucide-react";
+import { Plus, Loader2, Eye, EyeOff, Zap } from "lucide-react";
 import { emitDataChange } from "@/lib/events";
+import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -27,6 +28,7 @@ export function AddKeyDialog({ vaultId }: AddKeyDialogProps) {
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [showValue, setShowValue] = useState(false);
+  const [tierLimit, setTierLimit] = useState<string | null>(null);
   const [form, setForm] = useState({
     service: "",
     keyName: "",
@@ -39,6 +41,7 @@ export function AddKeyDialog({ vaultId }: AddKeyDialogProps) {
   function resetForm() {
     setForm({ service: "", keyName: "", value: "", project: "", notes: "" });
     setShowValue(false);
+    setTierLimit(null);
   }
 
   async function handleSubmit(e: React.FormEvent) {
@@ -61,6 +64,10 @@ export function AddKeyDialog({ vaultId }: AddKeyDialogProps) {
 
       if (!res.ok) {
         const data = await res.json();
+        if (data.code === "TIER_LIMIT") {
+          setTierLimit(data.error);
+          return;
+        }
         throw new Error(data.error || "Failed to add key");
       }
 
@@ -93,6 +100,38 @@ export function AddKeyDialog({ vaultId }: AddKeyDialogProps) {
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[500px]">
+        {tierLimit ? (
+          <>
+            <DialogHeader>
+              <DialogTitle>Key Limit Reached</DialogTitle>
+            </DialogHeader>
+            <div className="rounded-lg border border-brand-accent/20 bg-brand-accent/5 p-4 text-center">
+              <Zap className="mx-auto mb-2 h-8 w-8 text-brand-accent" />
+              <p className="text-sm font-medium text-brand-text">
+                {tierLimit}
+              </p>
+              <p className="mt-1 text-xs text-brand-text-secondary">
+                Upgrade to Pro for unlimited vaults and keys — $5/month.
+              </p>
+              <div className="mt-3 flex items-center justify-center gap-2">
+                <Button
+                  asChild
+                  size="sm"
+                  className="bg-brand-accent text-black hover:bg-brand-accent/90"
+                >
+                  <Link href="/dashboard/pricing">Upgrade Now</Link>
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setOpen(false)}
+                >
+                  Maybe Later
+                </Button>
+              </div>
+            </div>
+          </>
+        ) : (
         <form onSubmit={handleSubmit}>
           <DialogHeader>
             <DialogTitle>Add New Key</DialogTitle>
@@ -208,6 +247,7 @@ export function AddKeyDialog({ vaultId }: AddKeyDialogProps) {
             </Button>
           </DialogFooter>
         </form>
+        )}
       </DialogContent>
     </Dialog>
   );

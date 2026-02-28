@@ -4,6 +4,7 @@ import {
   ScrollText,
   KeyRound,
   Settings,
+  Zap,
   type LucideIcon,
 } from "lucide-react";
 
@@ -18,5 +19,6 @@ export const navItems: NavItem[] = [
   { label: "Vaults", href: "/dashboard/vaults", icon: Lock },
   { label: "Audit Log", href: "/dashboard/audit", icon: ScrollText },
   { label: "API Keys", href: "/dashboard/api-keys", icon: KeyRound },
+  { label: "Pricing", href: "/dashboard/pricing", icon: Zap },
   { label: "Settings", href: "/dashboard/settings", icon: Settings },
 ];

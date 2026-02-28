@@ -3,8 +3,9 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { motion } from "framer-motion";
-import { Lock, ChevronsLeft, ChevronsRight } from "lucide-react";
+import { Lock, ChevronsLeft, ChevronsRight, Crown } from "lucide-react";
 import { UserButton } from "@clerk/nextjs";
+import { TierBadge } from "@/components/tier-badge";
 import { cn } from "@/lib/utils";
 import { navItems } from "@/lib/navigation";
 import { useSidebarContext } from "@/components/providers/sidebar-provider";
@@ -117,6 +118,13 @@ export function Sidebar() {
                 </>
               )}
             </button>
+
+            {/* Tier Badge */}
+            {!collapsed && (
+              <div className="mt-2 px-3">
+                <TierBadge />
+              </div>
+            )}
 
             {/* User */}
             <div

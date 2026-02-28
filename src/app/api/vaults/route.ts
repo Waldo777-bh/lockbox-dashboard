@@ -3,12 +3,22 @@ import { getCurrentUser } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { createVaultSchema } from "@/lib/validations";
 import { createAuditLog, AuditAction } from "@/lib/audit";
+import { checkVaultLimit } from "@/lib/tier";
 
 // POST /api/vaults — Create a new vault
 export async function POST(req: Request) {
   try {
     const user = await getCurrentUser();
     const body = await req.json();
+
+    // Check tier vault limit
+    const limitCheck = await checkVaultLimit(user.id);
+    if (!limitCheck.allowed) {
+      return NextResponse.json(
+        { error: limitCheck.message, code: "TIER_LIMIT" },
+        { status: 403 }
+      );
+    }
 
     const parsed = createVaultSchema.safeParse(body);
     if (!parsed.success) {

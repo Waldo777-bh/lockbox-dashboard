@@ -13,6 +13,11 @@ model User {
   email                String
   onboardingCompleted  Boolean    @default(false)
   onboardingStep       Int        @default(0)
+  tier                 String     @default("free") // "free", "pro", "team"
+  stripeCustomerId     String?    @unique
+  licenceKey           String?    @unique
+  subscriptionId       String?
+  subscriptionEnd      DateTime?
   vaults               Vault[]
   apiKeys              ApiKey[]
   auditLogs            AuditLog[]

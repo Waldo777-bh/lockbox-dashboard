@@ -3,9 +3,13 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import { Plus, Loader2, Check } from "lucide-react";
 import { emitDataChange } from "@/lib/events";
+import Link from "next/link";
 import {
+  Plus,
+  Loader2,
+  Check,
+  Zap,
   Lock,
   Key,
   Shield,
@@ -14,7 +18,6 @@ import {
   Server,
   Code,
   Globe,
-  Zap,
   Folder,
   Star,
   Heart,
@@ -69,6 +72,7 @@ export function CreateVaultDialog() {
   const [color, setColor] = useState("#22d68a");
   const [emoji, setEmoji] = useState("lock");
   const [loading, setLoading] = useState(false);
+  const [tierLimit, setTierLimit] = useState<string | null>(null);
   const router = useRouter();
 
   function resetForm() {
@@ -97,6 +101,10 @@ export function CreateVaultDialog() {
 
       if (!res.ok) {
         const data = await res.json();
+        if (data.code === "TIER_LIMIT") {
+          setTierLimit(data.error);
+          return;
+        }
         throw new Error(data.error || "Failed to create vault");
       }
 
@@ -115,7 +123,13 @@ export function CreateVaultDialog() {
   }
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Dialog
+      open={open}
+      onOpenChange={(v) => {
+        setOpen(v);
+        if (!v) setTierLimit(null);
+      }}
+    >
       <DialogTrigger asChild>
         <Button>
           <Plus className="mr-2 h-4 w-4" />
@@ -123,6 +137,38 @@ export function CreateVaultDialog() {
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-md">
+        {tierLimit ? (
+          <>
+            <DialogHeader>
+              <DialogTitle>Vault Limit Reached</DialogTitle>
+            </DialogHeader>
+            <div className="rounded-lg border border-brand-accent/20 bg-brand-accent/5 p-4 text-center">
+              <Zap className="mx-auto mb-2 h-8 w-8 text-brand-accent" />
+              <p className="text-sm font-medium text-brand-text">
+                {tierLimit}
+              </p>
+              <p className="mt-1 text-xs text-brand-text-secondary">
+                Upgrade to Pro for unlimited vaults and keys — $5/month.
+              </p>
+              <div className="mt-3 flex items-center justify-center gap-2">
+                <Button
+                  asChild
+                  size="sm"
+                  className="bg-brand-accent text-black hover:bg-brand-accent/90"
+                >
+                  <Link href="/dashboard/pricing">Upgrade Now</Link>
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setOpen(false)}
+                >
+                  Maybe Later
+                </Button>
+              </div>
+            </div>
+          </>
+        ) : (
         <form onSubmit={handleSubmit}>
           <DialogHeader>
             <DialogTitle>Create New Vault</DialogTitle>
@@ -230,6 +276,7 @@ export function CreateVaultDialog() {
             </Button>
           </DialogFooter>
         </form>
+        )}
       </DialogContent>
     </Dialog>
   );
