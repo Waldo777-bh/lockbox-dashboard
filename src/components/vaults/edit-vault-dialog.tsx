@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { Loader2, Check } from "lucide-react";
+import { emitDataChange } from "@/lib/events";
 import {
   Lock,
   Key,
@@ -108,6 +109,7 @@ export function EditVaultDialog({
 
       toast.success("Vault updated successfully");
       onOpenChange(false);
+      emitDataChange("vault:updated", vault.id);
       router.refresh();
     } catch (error) {
       toast.error(

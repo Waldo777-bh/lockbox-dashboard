@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { Plus, Loader2, Check } from "lucide-react";
+import { emitDataChange } from "@/lib/events";
 import {
   Lock,
   Key,
@@ -102,6 +103,7 @@ export function CreateVaultDialog() {
       toast.success("Vault created successfully");
       setOpen(false);
       resetForm();
+      emitDataChange("vault:created");
       router.refresh();
     } catch (error) {
       toast.error(

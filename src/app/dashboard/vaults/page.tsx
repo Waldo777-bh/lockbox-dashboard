@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { Lock } from "lucide-react";
+import { useDataRefresh } from "@/hooks/use-data-refresh";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Table,
@@ -65,6 +66,9 @@ export default function VaultsPage() {
   useEffect(() => {
     fetchVaults();
   }, [fetchVaults]);
+
+  // Re-fetch when any vault/key mutation occurs
+  useDataRefresh(fetchVaults);
 
   const handleSearch = useCallback((q: string) => {
     setSearch(q);

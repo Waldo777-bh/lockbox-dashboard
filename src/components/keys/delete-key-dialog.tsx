@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { Loader2, Trash2 } from "lucide-react";
+import { emitDataChange } from "@/lib/events";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -46,6 +47,7 @@ export function DeleteKeyDialog({
 
       toast.success("Key deleted successfully");
       setOpen(false);
+      emitDataChange("key:deleted", vaultId);
       router.refresh();
     } catch (error) {
       toast.error(

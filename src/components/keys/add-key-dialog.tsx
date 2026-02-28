@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { Plus, Loader2, Eye, EyeOff } from "lucide-react";
+import { emitDataChange } from "@/lib/events";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -66,6 +67,7 @@ export function AddKeyDialog({ vaultId }: AddKeyDialogProps) {
       toast.success("Key added successfully");
       setOpen(false);
       resetForm();
+      emitDataChange("key:created", vaultId);
       router.refresh();
     } catch (error) {
       toast.error(

@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { Loader2, Pencil, Eye, EyeOff } from "lucide-react";
+import { emitDataChange } from "@/lib/events";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -83,6 +84,7 @@ export function EditKeyDialog({
 
       toast.success("Key updated successfully");
       setOpen(false);
+      emitDataChange("key:updated", vaultId);
       router.refresh();
     } catch (error) {
       toast.error(

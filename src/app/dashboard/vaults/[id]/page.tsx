@@ -1,8 +1,9 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { useDataRefresh } from "@/hooks/use-data-refresh";
 import {
   Lock,
   Key,
@@ -96,30 +97,33 @@ export default function VaultDetailPage({
   }, [params]);
 
   // Fetch vault data
-  useEffect(() => {
+  const fetchVault = useCallback(async () => {
     if (!vaultId) return;
 
-    async function fetchVault() {
-      try {
-        const res = await fetch(`/api/vaults/${vaultId}`);
-        if (!res.ok) {
-          if (res.status === 404) {
-            router.push("/dashboard/vaults");
-            return;
-          }
-          throw new Error("Failed to fetch vault");
+    try {
+      const res = await fetch(`/api/vaults/${vaultId}`);
+      if (!res.ok) {
+        if (res.status === 404) {
+          router.push("/dashboard/vaults");
+          return;
         }
-        const data = await res.json();
-        setVault(data);
-      } catch (error) {
-        console.error("Failed to fetch vault:", error);
-      } finally {
-        setLoading(false);
+        throw new Error("Failed to fetch vault");
       }
+      const data = await res.json();
+      setVault(data);
+    } catch (error) {
+      console.error("Failed to fetch vault:", error);
+    } finally {
+      setLoading(false);
     }
-
-    fetchVault();
   }, [vaultId, router]);
+
+  useEffect(() => {
+    fetchVault();
+  }, [fetchVault]);
+
+  // Re-fetch when any key/vault mutation occurs for this vault
+  useDataRefresh(fetchVault);
 
   if (loading || !vault) {
     return (

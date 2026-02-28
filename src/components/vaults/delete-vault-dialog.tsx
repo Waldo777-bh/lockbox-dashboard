@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { Loader2, Trash2 } from "lucide-react";
+import { emitDataChange } from "@/lib/events";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -42,6 +43,7 @@ export function DeleteVaultDialog({
 
       toast.success("Vault deleted successfully");
       setOpen(false);
+      emitDataChange("vault:deleted", vaultId);
       router.push("/dashboard/vaults");
       router.refresh();
     } catch (error) {
