@@ -28,12 +28,15 @@ export default function RootLayout({
 }) {
   return (
     <ClerkProvider
+      signUpUrl="/sign-up"
+      signInUrl="/sign-in"
+      afterSignOutUrl="/sign-in"
       appearance={{
         baseTheme: dark,
         variables: {
-          colorPrimary: "#22d68a",
-          colorBackground: "#141820",
-          colorInputBackground: "#0f1218",
+          colorPrimary: "#00d87a",
+          colorBackground: "#1a1a24",
+          colorInputBackground: "#0f0f14",
           colorInputText: "#e8eaf0",
         },
       }}
@@ -45,8 +48,8 @@ export default function RootLayout({
             position="bottom-right"
             toastOptions={{
               style: {
-                background: "#141820",
-                border: "1px solid #1e2432",
+                background: "#1a1a24",
+                border: "1px solid #2a2a3a",
                 color: "#e8eaf0",
               },
             }}

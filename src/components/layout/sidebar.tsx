@@ -78,9 +78,14 @@ export function Sidebar() {
                       <motion.span
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
-                        className="whitespace-nowrap"
+                        className="flex items-center gap-2 whitespace-nowrap"
                       >
                         {item.label}
+                        {item.badge && (
+                          <span className="rounded-full bg-brand-accent/20 px-1.5 py-0.5 text-[10px] font-bold text-brand-accent">
+                            {item.badge}
+                          </span>
+                        )}
                       </motion.span>
                     )}
                   </Link>
@@ -134,7 +139,6 @@ export function Sidebar() {
               )}
             >
               <UserButton
-                afterSignOutUrl="/sign-in"
                 appearance={{
                   elements: {
                     avatarBox: "h-8 w-8",

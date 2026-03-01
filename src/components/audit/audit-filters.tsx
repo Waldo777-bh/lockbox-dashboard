@@ -17,6 +17,7 @@ interface AuditFiltersProps {
     action?: string;
     search?: string;
     since?: string;
+    source?: string;
   }) => void;
   actions: string[];
 }
@@ -25,6 +26,7 @@ export function AuditFilters({ onFilterChange, actions }: AuditFiltersProps) {
   const [search, setSearch] = useState("");
   const [action, setAction] = useState<string>("all");
   const [dateRange, setDateRange] = useState<string>("all");
+  const [source, setSource] = useState<string>("all");
 
   const computeSince = useCallback((range: string): string | undefined => {
     const now = new Date();
@@ -56,15 +58,17 @@ export function AuditFilters({ onFilterChange, actions }: AuditFiltersProps) {
         action: action === "all" ? undefined : action,
         search: search.trim() || undefined,
         since: computeSince(dateRange),
+        source: source === "all" ? undefined : source,
       });
     }, 300);
     return () => clearTimeout(timer);
-  }, [search, action, dateRange, onFilterChange, computeSince]);
+  }, [search, action, dateRange, source, onFilterChange, computeSince]);
 
   function handleClear() {
     setSearch("");
     setAction("all");
     setDateRange("all");
+    setSource("all");
   }
 
   async function handleExportCsv() {
@@ -85,7 +89,11 @@ export function AuditFilters({ onFilterChange, actions }: AuditFiltersProps) {
     }
   }
 
-  const hasFilters = search !== "" || action !== "all" || dateRange !== "all";
+  const hasFilters =
+    search !== "" ||
+    action !== "all" ||
+    dateRange !== "all" ||
+    source !== "all";
 
   return (
     <div className="flex flex-wrap items-center gap-3">
@@ -112,6 +120,19 @@ export function AuditFilters({ onFilterChange, actions }: AuditFiltersProps) {
               {a.replace(/_/g, " ")}
             </SelectItem>
           ))}
+        </SelectContent>
+      </Select>
+
+      {/* Source filter */}
+      <Select value={source} onValueChange={setSource}>
+        <SelectTrigger className="w-[160px]">
+          <SelectValue placeholder="All Sources" />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectItem value="all">All Sources</SelectItem>
+          <SelectItem value="extension">Extension</SelectItem>
+          <SelectItem value="cli">CLI</SelectItem>
+          <SelectItem value="dashboard">Dashboard</SelectItem>
         </SelectContent>
       </Select>
 

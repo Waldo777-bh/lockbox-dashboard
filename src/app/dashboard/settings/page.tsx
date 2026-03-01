@@ -27,6 +27,7 @@ import { CliSetup } from "@/components/settings/cli-setup";
 import { BrowserExtension } from "@/components/settings/browser-extension";
 import { Subscription } from "@/components/settings/subscription";
 import { PageTransition } from "@/components/layout/page-transition";
+import { Suspense } from "react";
 
 export default function SettingsPage() {
   const { user, isLoaded } = useUser();
@@ -125,7 +126,9 @@ export default function SettingsPage() {
 
           {/* Subscription Tab */}
           <TabsContent value="subscription">
-            <Subscription />
+            <Suspense fallback={<Skeleton className="h-64 w-full" />}>
+              <Subscription />
+            </Suspense>
           </TabsContent>
 
           {/* CLI Setup Tab */}

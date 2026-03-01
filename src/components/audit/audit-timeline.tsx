@@ -15,6 +15,7 @@ interface AuditLog {
   action: string;
   service?: string | null;
   keyName?: string | null;
+  source?: string | null;
   metadata?: any;
   createdAt: string;
 }
@@ -24,22 +25,75 @@ interface AuditTimelineProps {
 }
 
 function getActionColor(action: string): string {
-  if (action.includes("CREATED") || action.includes("ADDED")) return "#22d68a";
-  if (action.includes("DELETED") || action.includes("REVOKED")) return "#e8485c";
-  if (action.includes("DECRYPTED")) return "#4a9eff";
-  if (action.includes("UPDATED") || action.includes("EXPORTED")) return "#f0a744";
+  const normalized = action.toLowerCase();
+
+  // New action types
+  if (normalized === "key_accessed") return "#4a9eff";
+  if (normalized === "vault_unlocked") return "#22d68a";
+  if (normalized === "vault_locked") return "#8b8fa3";
+
+  // Existing action types
+  if (normalized.includes("created") || normalized.includes("added"))
+    return "#22d68a";
+  if (normalized.includes("deleted") || normalized.includes("revoked"))
+    return "#e8485c";
+  if (normalized.includes("decrypted")) return "#4a9eff";
+  if (normalized.includes("updated") || normalized.includes("exported"))
+    return "#f0a744";
+
   return "#8b8fa3";
 }
 
 function getActionBadgeVariant(action: string) {
-  if (action.includes("CREATED") || action.includes("ADDED"))
+  const normalized = action.toLowerCase();
+
+  // New action types
+  if (normalized === "key_accessed") return "blue" as const;
+  if (normalized === "vault_unlocked") return "default" as const;
+  if (normalized === "vault_locked") return "secondary" as const;
+
+  // Existing action types
+  if (normalized.includes("created") || normalized.includes("added"))
     return "default" as const;
-  if (action.includes("DELETED") || action.includes("REVOKED"))
+  if (normalized.includes("deleted") || normalized.includes("revoked"))
     return "destructive" as const;
-  if (action.includes("DECRYPTED")) return "blue" as const;
-  if (action.includes("UPDATED") || action.includes("EXPORTED"))
+  if (normalized.includes("decrypted")) return "blue" as const;
+  if (normalized.includes("updated") || normalized.includes("exported"))
     return "warning" as const;
+
   return "secondary" as const;
+}
+
+function getSourceBadge(source: string | null | undefined) {
+  if (!source) return null;
+
+  const normalized = source.toLowerCase();
+
+  switch (normalized) {
+    case "extension":
+      return {
+        label: "Extension",
+        className:
+          "bg-brand-accent/10 text-brand-accent border-brand-accent/20",
+      };
+    case "cli":
+      return {
+        label: "CLI",
+        className: "bg-brand-blue/10 text-brand-blue border-brand-blue/20",
+      };
+    case "dashboard":
+      return {
+        label: "Dashboard",
+        className:
+          "bg-brand-text-muted/10 text-brand-text-muted border-brand-text-muted/20",
+      };
+    default:
+      return {
+        label: source,
+        className:
+          "bg-brand-text-muted/10 text-brand-text-muted border-brand-text-muted/20",
+      };
+  }
 }
 
 function getDateGroupLabel(dateStr: string): string {
@@ -101,6 +155,16 @@ export function AuditTimeline({ logs }: AuditTimelineProps) {
               const relativeTime = formatDistanceToNow(new Date(log.createdAt), {
                 addSuffix: true,
               });
+              const sourceBadge = getSourceBadge(log.source);
+              const vaultName =
+                log.metadata &&
+                typeof log.metadata === "object" &&
+                log.metadata !== null &&
+                "vaultName" in log.metadata
+                  ? String(
+                      (log.metadata as Record<string, unknown>).vaultName
+                    )
+                  : null;
 
               return (
                 <motion.div
@@ -122,6 +186,16 @@ export function AuditTimeline({ logs }: AuditTimelineProps) {
                       <Badge variant={getActionBadgeVariant(log.action)}>
                         {log.action.replace(/_/g, " ")}
                       </Badge>
+
+                      {/* Source badge */}
+                      {sourceBadge && (
+                        <span
+                          className={`inline-flex items-center rounded-full border px-2 py-0.5 text-[10px] font-medium ${sourceBadge.className}`}
+                        >
+                          {sourceBadge.label}
+                        </span>
+                      )}
+
                       {(log.service || log.keyName) && (
                         <span className="font-mono text-sm text-brand-text-secondary">
                           {log.service}
@@ -129,16 +203,13 @@ export function AuditTimeline({ logs }: AuditTimelineProps) {
                         </span>
                       )}
                     </div>
-                    {log.metadata &&
-                      typeof log.metadata === "object" &&
-                      log.metadata !== null &&
-                      "vaultName" in log.metadata && (
-                        <p className="mt-1 text-sm text-brand-text-muted">
-                          {String(
-                            (log.metadata as Record<string, unknown>).vaultName
-                          )}
-                        </p>
-                      )}
+
+                    {/* Vault name */}
+                    {vaultName && (
+                      <p className="mt-1 text-sm text-brand-text-muted">
+                        {vaultName}
+                      </p>
+                    )}
                   </div>
 
                   {/* Timestamp */}

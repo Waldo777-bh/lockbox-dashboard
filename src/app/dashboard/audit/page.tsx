@@ -7,12 +7,15 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { AuditTimeline } from "@/components/audit/audit-timeline";
 import { AuditFilters } from "@/components/audit/audit-filters";
 import { PageTransition } from "@/components/layout/page-transition";
+import { Button } from "@/components/ui/button";
+import { RefreshCw } from "lucide-react";
 
 interface AuditLog {
   id: string;
   action: string;
   service?: string | null;
   keyName?: string | null;
+  source?: string | null;
   metadata?: any;
   createdAt: string;
 }
@@ -21,6 +24,7 @@ interface Filters {
   action?: string;
   search?: string;
   since?: string;
+  source?: string;
 }
 
 const PAGE_SIZE = 50;
@@ -30,6 +34,7 @@ export default function AuditPage() {
   const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const [filters, setFilters] = useState<Filters>({});
   const [actions, setActions] = useState<string[]>([]);
   const [offset, setOffset] = useState(0);
@@ -42,6 +47,7 @@ export default function AuditPage() {
       } else {
         setLoading(true);
       }
+      setError(null);
 
       try {
         const params = new URLSearchParams();
@@ -50,6 +56,7 @@ export default function AuditPage() {
         if (filters.action) params.set("action", filters.action);
         if (filters.search) params.set("search", filters.search);
         if (filters.since) params.set("since", filters.since);
+        if (filters.source) params.set("source", filters.source);
 
         const res = await fetch(`/api/audit?${params.toString()}`);
         if (!res.ok) throw new Error("Failed to fetch");
@@ -75,7 +82,9 @@ export default function AuditPage() {
 
         setTotal(data.total);
       } catch {
-        // Silently handle — user can retry
+        if (!append) {
+          setError("Failed to load audit logs");
+        }
       } finally {
         setLoading(false);
         setLoadingMore(false);
@@ -143,6 +152,28 @@ export default function AuditPage() {
               </div>
             ))}
           </div>
+        ) : error ? (
+          <Card>
+            <CardHeader className="text-center">
+              <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-red-500/10">
+                <ScrollText className="h-6 w-6 text-red-400" />
+              </div>
+              <CardTitle className="text-brand-text-secondary">
+                Failed to load audit logs
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="text-center">
+              <p className="mb-4 text-sm text-brand-text-muted">{error}</p>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => fetchLogs(0, false)}
+              >
+                <RefreshCw className="mr-2 h-4 w-4" />
+                Retry
+              </Button>
+            </CardContent>
+          </Card>
         ) : logs.length === 0 ? (
           <Card>
             <CardHeader className="text-center">

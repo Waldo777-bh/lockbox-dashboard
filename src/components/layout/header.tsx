@@ -2,7 +2,7 @@
 
 import { usePathname } from "next/navigation";
 import Link from "next/link";
-import { Search, Plus, Bell, Lock, KeyRound, Key } from "lucide-react";
+import { Search, Plus, Bell, Lock, Key, Puzzle } from "lucide-react";
 import { MobileNav } from "./mobile-nav";
 import { Button } from "@/components/ui/button";
 import {
@@ -43,6 +43,8 @@ function useBreadcrumbs(vaultName?: string) {
       crumbs.push({ label: "Audit Log", href });
     } else if (segment === "api-keys") {
       crumbs.push({ label: "API Keys", href });
+    } else if (segment === "extension-setup") {
+      crumbs.push({ label: "Extension Setup", href });
     } else if (segment === "settings") {
       crumbs.push({ label: "Settings", href });
     } else if (i === segments.length - 1 && segments[i - 1] === "vaults") {
@@ -117,13 +119,13 @@ export function Header({ onOpenSearch, vaultName }: HeaderProps) {
               <DropdownMenuItem asChild>
                 <Link href="/dashboard/vaults" className="flex items-center gap-2">
                   <Lock className="h-4 w-4" />
-                  New Vault
+                  View Vaults
                 </Link>
               </DropdownMenuItem>
               <DropdownMenuItem asChild>
-                <Link href="/dashboard/vaults" className="flex items-center gap-2">
-                  <KeyRound className="h-4 w-4" />
-                  Add Key
+                <Link href="/dashboard/extension-setup" className="flex items-center gap-2">
+                  <Puzzle className="h-4 w-4" />
+                  Setup Extension
                 </Link>
               </DropdownMenuItem>
               <DropdownMenuItem asChild>

@@ -8,21 +8,24 @@ datasource db {
 }
 
 model User {
-  id                   String     @id @default(cuid())
-  clerkId              String     @unique
+  id                   String           @id @default(cuid())
+  clerkId              String           @unique
   email                String
-  onboardingCompleted  Boolean    @default(false)
-  onboardingStep       Int        @default(0)
-  tier                 String     @default("free") // "free", "pro", "team"
-  stripeCustomerId     String?    @unique
-  licenceKey           String?    @unique
+  onboardingCompleted  Boolean          @default(false)
+  onboardingStep       Int              @default(0)
+  tier                 String           @default("free") // "free", "pro", "team"
+  stripeCustomerId     String?          @unique
+  licenceKey           String?          @unique
   subscriptionId       String?
   subscriptionEnd      DateTime?
   vaults               Vault[]
   apiKeys              ApiKey[]
   auditLogs            AuditLog[]
-  createdAt            DateTime   @default(now())
-  updatedAt            DateTime   @updatedAt
+  vaultSync            VaultSync?
+  vaultMetadata        VaultMetadata?
+  extensionTokens      ExtensionToken[]
+  createdAt            DateTime         @default(now())
+  updatedAt            DateTime         @updatedAt
 }
 
 model Vault {
@@ -64,6 +67,8 @@ model AuditLog {
   action    String
   service   String?
   keyName   String?
+  vaultName String?
+  source    String   @default("dashboard") // "extension", "cli", "dashboard"
   userId    String
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   metadata  Json?
@@ -71,6 +76,7 @@ model AuditLog {
 
   @@index([userId])
   @@index([createdAt])
+  @@index([userId, createdAt])
 }
 
 model ApiKey {
@@ -86,4 +92,40 @@ model ApiKey {
 
   @@index([userId])
   @@index([hashedKey])
+}
+
+model VaultSync {
+  id             String   @id @default(cuid())
+  userId         String   @unique
+  encryptedVault String   @db.Text
+  checksum       String
+  version        Int      @default(1)
+  syncedAt       DateTime @default(now())
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model VaultMetadata {
+  id           String   @id @default(cuid())
+  userId       String   @unique
+  vaultCount   Int      @default(0)
+  totalKeys    Int      @default(0)
+  vaultsJson   String   @db.Text // JSON array of vault summaries
+  servicesJson String   @db.Text // JSON array of service summaries
+  lastModified DateTime @default(now())
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model ExtensionToken {
+  id        String   @id @default(cuid())
+  userId    String
+  token     String   @unique
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
 }

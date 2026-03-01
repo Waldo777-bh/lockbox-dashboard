@@ -13,7 +13,6 @@ function DashboardContent({ children }: { children: React.ReactNode }) {
   const { collapsed } = useSidebarContext();
   const [searchOpen, setSearchOpen] = useState(false);
   const [shortcutsOpen, setShortcutsOpen] = useState(false);
-  const [isDesktop, setIsDesktop] = useState(false);
   const router = useRouter();
 
   // Global keyboard shortcuts
@@ -58,23 +57,16 @@ function DashboardContent({ children }: { children: React.ReactNode }) {
     return () => document.removeEventListener("keydown", handleKeyDown);
   }, [handleKeyDown]);
 
-  // Track desktop breakpoint for sidebar padding
-  useEffect(() => {
-    const mq = window.matchMedia("(min-width: 1024px)");
-    setIsDesktop(mq.matches);
-    const handler = (e: MediaQueryListEvent) => setIsDesktop(e.matches);
-    mq.addEventListener("change", handler);
-    return () => mq.removeEventListener("change", handler);
-  }, []);
-
-  const paddingLeft = isDesktop ? (collapsed ? 64 : 256) : 0;
+  // Sidebar padding: use CSS classes to avoid hydration mismatch
+  const paddingClass = collapsed
+    ? "lg:pl-16"
+    : "lg:pl-64";
 
   return (
     <div className="min-h-screen bg-brand-bg">
       <Sidebar />
       <div
-        className="transition-[padding] duration-200"
-        style={{ paddingLeft }}
+        className={`transition-[padding] duration-200 ${paddingClass}`}
       >
         <Header onOpenSearch={() => setSearchOpen(true)} />
         <main className="px-4 py-8 pb-24 sm:px-6 md:pb-8 lg:px-8">

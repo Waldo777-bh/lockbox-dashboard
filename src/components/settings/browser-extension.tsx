@@ -1,141 +1,388 @@
 "use client";
 
-import { Chrome, Download, Puzzle, KeyRound, Search, Lock, ExternalLink } from "lucide-react";
+import { useState, useEffect, useCallback } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { formatDistanceToNow } from "date-fns";
+import {
+  Chrome,
+  Puzzle,
+  Lock,
+  ExternalLink,
+  Link2,
+  Loader2,
+  Trash2,
+  RefreshCw,
+  Check,
+  Circle,
+  Clock,
+  Shield,
+  ArrowRight,
+} from "lucide-react";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
+import { Skeleton } from "@/components/ui/skeleton";
+import { CopyButton } from "@/components/shared/copy-button";
 
-const CHROME_STORE_URL =
-  "https://chromewebstore.google.com/detail/lockbox-api-key-vault/bcjcdgpmgmbibgngbkhfobidmnfddefa";
+interface SyncStatus {
+  connected: boolean;
+  lastSync: string | null;
+  syncVersion: number | null;
+}
 
-function Feature({
-  icon: Icon,
-  title,
-  description,
-}: {
-  icon: React.ComponentType<{ className?: string }>;
-  title: string;
-  description: string;
-}) {
-  return (
-    <div className="flex gap-3">
-      <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg bg-brand-accent/10 text-brand-accent">
-        <Icon className="h-4 w-4" />
-      </div>
-      <div>
-        <h4 className="text-sm font-medium text-brand-text">{title}</h4>
-        <p className="mt-0.5 text-xs text-brand-text-secondary">{description}</p>
-      </div>
-    </div>
-  );
+interface ExtensionToken {
+  id: string;
+  name?: string;
+  createdAt: string;
+  expiresAt: string | null;
+  lastUsedAt: string | null;
 }
 
 export function BrowserExtension() {
+  const [syncStatus, setSyncStatus] = useState<SyncStatus | null>(null);
+  const [syncLoading, setSyncLoading] = useState(true);
+  const [tokens, setTokens] = useState<ExtensionToken[]>([]);
+  const [tokensLoading, setTokensLoading] = useState(true);
+  const [generatingToken, setGeneratingToken] = useState(false);
+  const [newToken, setNewToken] = useState<string | null>(null);
+  const [revokingId, setRevokingId] = useState<string | null>(null);
+
+  // Fetch sync status from /api/dashboard/summary
+  const fetchSyncStatus = useCallback(async () => {
+    setSyncLoading(true);
+    try {
+      const res = await fetch("/api/dashboard/summary");
+      if (!res.ok) throw new Error("Failed to fetch");
+      const data = await res.json();
+
+      setSyncStatus({
+        connected: !!data.metadata?.lastSync,
+        lastSync: data.metadata?.lastSync || null,
+        syncVersion: data.metadata?.syncVersion || null,
+      });
+    } catch {
+      setSyncStatus({ connected: false, lastSync: null, syncVersion: null });
+    } finally {
+      setSyncLoading(false);
+    }
+  }, []);
+
+  // Fetch active tokens
+  const fetchTokens = useCallback(async () => {
+    setTokensLoading(true);
+    try {
+      const res = await fetch("/api/auth/extension-token");
+      if (!res.ok) throw new Error("Failed to fetch tokens");
+      const data = await res.json();
+      setTokens(data.tokens || []);
+    } catch {
+      setTokens([]);
+    } finally {
+      setTokensLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchSyncStatus();
+    fetchTokens();
+  }, [fetchSyncStatus, fetchTokens]);
+
+  // Generate a new token
+  async function handleGenerateToken() {
+    setGeneratingToken(true);
+    setNewToken(null);
+    try {
+      const res = await fetch("/api/auth/extension-token", {
+        method: "POST",
+      });
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        throw new Error(data.error || "Failed to generate token");
+      }
+      const data = await res.json();
+      setNewToken(data.token);
+      toast.success("Extension token generated");
+      fetchTokens();
+    } catch (err: any) {
+      toast.error(err.message || "Failed to generate token");
+    } finally {
+      setGeneratingToken(false);
+    }
+  }
+
+  // Revoke a token
+  async function handleRevokeToken(id: string) {
+    setRevokingId(id);
+    try {
+      const res = await fetch(`/api/auth/extension-token?id=${id}`, {
+        method: "DELETE",
+      });
+      if (!res.ok) throw new Error("Failed to revoke token");
+      toast.success("Token revoked");
+      setTokens((prev) => prev.filter((t) => t.id !== id));
+    } catch {
+      toast.error("Failed to revoke token");
+    } finally {
+      setRevokingId(null);
+    }
+  }
+
   return (
     <div className="space-y-6">
-      {/* Hero section */}
-      <div className="flex items-start gap-4 rounded-lg border border-brand-accent/20 bg-brand-accent/5 p-4">
-        <div className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-xl bg-brand-accent/10 border border-brand-accent/20">
-          <Lock className="h-6 w-6 text-brand-accent" />
-        </div>
-        <div className="flex-1">
-          <h3 className="text-base font-semibold text-brand-text">
-            Lockbox for Chrome
-          </h3>
-          <p className="mt-1 text-sm text-brand-text-secondary">
-            Access, copy, and auto-fill your API keys directly from the browser
-            toolbar. No more switching tabs to find your keys.
-          </p>
-          <div className="mt-3 flex items-center gap-2">
-            <Button size="sm" asChild>
-              <a
-                href={CHROME_STORE_URL}
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                <Chrome className="mr-2 h-4 w-4" />
-                Add to Chrome
-              </a>
-            </Button>
-            <Button variant="outline" size="sm" asChild>
-              <a
-                href="https://github.com/Waldo777-bh/lockbox-extension"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                View on GitHub
-              </a>
-            </Button>
+      {/* Connection Status Section */}
+      <div>
+        <h4 className="mb-3 text-sm font-medium text-brand-text-secondary">
+          Connection Status
+        </h4>
+
+        {syncLoading ? (
+          <div className="rounded-lg border border-brand-border bg-brand-card p-4">
+            <div className="flex items-center gap-3">
+              <Skeleton className="h-3 w-3 rounded-full" />
+              <Skeleton className="h-5 w-24" />
+            </div>
+            <div className="mt-2 space-y-1.5">
+              <Skeleton className="h-4 w-40" />
+              <Skeleton className="h-4 w-32" />
+            </div>
           </div>
+        ) : (
+          <div className="rounded-lg border border-brand-border bg-brand-card p-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2.5">
+                {syncStatus?.connected ? (
+                  <div className="relative flex h-3 w-3">
+                    <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-brand-accent opacity-40" />
+                    <span className="relative inline-flex h-3 w-3 rounded-full bg-brand-accent" />
+                  </div>
+                ) : (
+                  <div className="h-3 w-3 rounded-full bg-brand-text-muted" />
+                )}
+                <span className="text-sm font-medium text-brand-text">
+                  {syncStatus?.connected ? "Connected" : "Not Connected"}
+                </span>
+              </div>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={fetchSyncStatus}
+                className="h-8 w-8 p-0"
+              >
+                <RefreshCw className="h-3.5 w-3.5" />
+                <span className="sr-only">Refresh</span>
+              </Button>
+            </div>
+
+            {syncStatus?.connected && (
+              <div className="mt-3 space-y-1.5">
+                {syncStatus.lastSync && (
+                  <div className="flex items-center gap-2 text-xs text-brand-text-muted">
+                    <Clock className="h-3 w-3" />
+                    <span>
+                      Last sync:{" "}
+                      {formatDistanceToNow(new Date(syncStatus.lastSync), {
+                        addSuffix: true,
+                      })}
+                    </span>
+                  </div>
+                )}
+                {syncStatus.syncVersion != null && (
+                  <div className="flex items-center gap-2 text-xs text-brand-text-muted">
+                    <Shield className="h-3 w-3" />
+                    <span>Sync version: {syncStatus.syncVersion}</span>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {!syncStatus?.connected && (
+              <p className="mt-2 text-xs text-brand-text-muted">
+                Generate a token below and connect your extension to enable
+                syncing.
+              </p>
+            )}
+          </div>
+        )}
+      </div>
+
+      <Separator />
+
+      {/* Token Management Section */}
+      <div>
+        <h4 className="mb-3 text-sm font-medium text-brand-text-secondary">
+          Extension Tokens
+        </h4>
+
+        <div className="space-y-3">
+          {/* Generate button */}
+          <Button
+            size="sm"
+            onClick={handleGenerateToken}
+            disabled={generatingToken}
+          >
+            {generatingToken ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Generating...
+              </>
+            ) : (
+              <>
+                <Link2 className="mr-2 h-4 w-4" />
+                Generate Extension Token
+              </>
+            )}
+          </Button>
+
+          {/* Newly generated token display */}
+          <AnimatePresence>
+            {newToken && (
+              <motion.div
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: "auto" }}
+                exit={{ opacity: 0, height: 0 }}
+                className="overflow-hidden"
+              >
+                <div className="rounded-lg border border-brand-accent/20 bg-brand-accent/5 p-3">
+                  <p className="mb-2 text-xs font-medium text-brand-accent">
+                    New token generated — copy it now:
+                  </p>
+                  <div className="flex items-center gap-2 rounded-md border border-brand-border bg-brand-bg p-2">
+                    <code className="flex-1 break-all font-mono text-xs text-brand-accent">
+                      {newToken}
+                    </code>
+                    <CopyButton value={newToken} />
+                  </div>
+                  <p className="mt-2 text-xs text-brand-text-muted">
+                    Paste this in your extension under Settings &gt; Dashboard
+                    Connection. This token expires in 24 hours.
+                  </p>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+
+          {/* Active tokens list */}
+          {tokensLoading ? (
+            <div className="space-y-2">
+              {Array.from({ length: 2 }).map((_, i) => (
+                <div
+                  key={i}
+                  className="flex items-center justify-between rounded-lg border border-brand-border bg-brand-card p-3"
+                >
+                  <div className="space-y-1">
+                    <Skeleton className="h-4 w-32" />
+                    <Skeleton className="h-3 w-24" />
+                  </div>
+                  <Skeleton className="h-8 w-8" />
+                </div>
+              ))}
+            </div>
+          ) : tokens.length > 0 ? (
+            <div className="space-y-2">
+              {tokens.map((token) => {
+                const isExpired =
+                  token.expiresAt && new Date(token.expiresAt) < new Date();
+
+                return (
+                  <div
+                    key={token.id}
+                    className="flex items-center justify-between rounded-lg border border-brand-border bg-brand-card p-3"
+                  >
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-center gap-2">
+                        <span className="text-sm font-medium text-brand-text">
+                          {token.name || `Token ${token.id.slice(0, 8)}`}
+                        </span>
+                        {isExpired ? (
+                          <Badge variant="destructive" className="text-[10px]">
+                            Expired
+                          </Badge>
+                        ) : (
+                          <Badge variant="default" className="text-[10px]">
+                            Active
+                          </Badge>
+                        )}
+                      </div>
+                      <div className="mt-0.5 flex flex-wrap gap-x-3 text-xs text-brand-text-muted">
+                        <span>
+                          Created{" "}
+                          {formatDistanceToNow(new Date(token.createdAt), {
+                            addSuffix: true,
+                          })}
+                        </span>
+                        {token.lastUsedAt && (
+                          <span>
+                            Last used{" "}
+                            {formatDistanceToNow(new Date(token.lastUsedAt), {
+                              addSuffix: true,
+                            })}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => handleRevokeToken(token.id)}
+                      disabled={revokingId === token.id}
+                      className="ml-2 h-8 w-8 flex-shrink-0 p-0 text-brand-text-muted hover:text-red-400"
+                    >
+                      {revokingId === token.id ? (
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                      ) : (
+                        <Trash2 className="h-4 w-4" />
+                      )}
+                      <span className="sr-only">Revoke token</span>
+                    </Button>
+                  </div>
+                );
+              })}
+            </div>
+          ) : (
+            <p className="text-xs text-brand-text-muted">
+              No active tokens. Generate one to connect your extension.
+            </p>
+          )}
         </div>
       </div>
 
       <Separator />
 
-      {/* Features */}
+      {/* How It Works Section */}
       <div>
-        <h4 className="text-sm font-medium text-brand-text-secondary mb-3">
-          Features
+        <h4 className="mb-3 text-sm font-medium text-brand-text-secondary">
+          How It Works
         </h4>
-        <div className="grid gap-4">
-          <Feature
-            icon={Search}
-            title="Instant search"
-            description="Open the popup and start typing to find any key across all your vaults."
-          />
-          <Feature
-            icon={Puzzle}
-            title="Auto-detect API key fields"
-            description="Detects API key inputs on OpenAI, Stripe, AWS, GitHub, Anthropic, and more. Click the Lockbox icon to fill."
-          />
-          <Feature
-            icon={KeyRound}
-            title="Context menu paste"
-            description="Right-click any input field and paste a key directly from your vault."
-          />
-          <Feature
-            icon={Chrome}
-            title="Omnibox search"
-            description='Type "lb" in the address bar, press Tab, then search to copy a key instantly.'
-          />
+
+        <div className="space-y-3">
+          <div className="flex items-start gap-3">
+            <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg bg-brand-accent/10 text-brand-accent">
+              <Lock className="h-4 w-4" />
+            </div>
+            <div>
+              <h5 className="text-sm font-medium text-brand-text">
+                Local-First Wallet
+              </h5>
+              <p className="mt-0.5 text-xs text-brand-text-secondary">
+                Your API keys are encrypted locally with AES-256-GCM using your
+                master password. The extension wallet stores everything on your
+                device. Only encrypted metadata is synced to the dashboard for
+                display.
+              </p>
+            </div>
+          </div>
+
+          <Button variant="outline" size="sm" asChild>
+            <a href="/dashboard/extension-setup">
+              View Full Setup Guide
+              <ArrowRight className="ml-2 h-3 w-3" />
+            </a>
+          </Button>
         </div>
       </div>
 
-      <Separator />
-
-      {/* How it works */}
-      <div>
-        <h4 className="text-sm font-medium text-brand-text-secondary mb-3">
-          How it works
-        </h4>
-        <ol className="space-y-3 text-sm">
-          <li className="flex gap-3">
-            <span className="flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full bg-brand-bg-tertiary text-xs font-medium text-brand-text-secondary">
-              1
-            </span>
-            <span className="text-brand-text-secondary">
-              Click <strong className="text-brand-text">Add to Chrome</strong> above and confirm the install
-            </span>
-          </li>
-          <li className="flex gap-3">
-            <span className="flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full bg-brand-bg-tertiary text-xs font-medium text-brand-text-secondary">
-              2
-            </span>
-            <span className="text-brand-text-secondary">
-              Click the Lockbox icon in your toolbar and sign in
-            </span>
-          </li>
-          <li className="flex gap-3">
-            <span className="flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full bg-brand-bg-tertiary text-xs font-medium text-brand-text-secondary">
-              3
-            </span>
-            <span className="text-brand-text-secondary">
-              Search, copy, and auto-fill your keys from anywhere
-            </span>
-          </li>
-        </ol>
-      </div>
-
-      {/* Keyboard shortcut note */}
+      {/* Keyboard shortcut tip */}
       <div className="rounded-lg border border-brand-border bg-brand-card p-3">
         <p className="text-xs text-brand-text-muted">
           <strong className="text-brand-text-secondary">Tip:</strong> Press{" "}

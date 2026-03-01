@@ -16,6 +16,12 @@ const isApiKeyRoute = createRouteMatcher([
   "/api/audit(.*)",
 ]);
 
+// API routes that accept extension Bearer tokens
+const isExtensionRoute = createRouteMatcher([
+  "/api/sync(.*)",
+  "/api/auth/extension-verify",
+]);
+
 export default clerkMiddleware(async (auth, request) => {
   // Skip auth for public routes
   if (isPublicRoute(request)) return;
@@ -26,6 +32,14 @@ export default clerkMiddleware(async (auth, request) => {
     const authHeader = request.headers.get("authorization");
     if (authHeader?.startsWith("Bearer lb_live_")) {
       // API key auth — skip Clerk middleware, let route handler validate
+      return;
+    }
+  }
+
+  // Extension routes accept Bearer tokens — let route handler validate
+  if (isExtensionRoute(request)) {
+    const authHeader = request.headers.get("authorization");
+    if (authHeader?.startsWith("Bearer ")) {
       return;
     }
   }
