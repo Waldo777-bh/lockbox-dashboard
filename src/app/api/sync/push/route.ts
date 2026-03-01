@@ -108,6 +108,22 @@ export async function POST(request: Request) {
       },
     });
 
+    // Clean up stale audit log entries that reference services no longer in
+    // the wallet.  This handles the case where a wallet was deleted and
+    // recreated before the resetSync fix was deployed.
+    const currentServices = metadata.services.map((s) => s.name);
+    if (currentServices.length > 0) {
+      await db.auditLog.deleteMany({
+        where: {
+          userId: user.id,
+          service: { notIn: currentServices },
+        },
+      });
+    } else {
+      // Wallet has zero keys/services — clear all audit entries
+      await db.auditLog.deleteMany({ where: { userId: user.id } });
+    }
+
     return NextResponse.json({
       success: true,
       syncedAt: vaultSync.syncedAt.toISOString(),
