@@ -9,7 +9,6 @@ import {
   Download,
   Terminal,
   ArrowRight,
-  Info,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -20,10 +19,6 @@ import { ServiceCard } from "@/components/dashboard/service-card";
 import { VaultSummaryCard } from "@/components/dashboard/vault-summary-card";
 import { DashboardSecurityScore } from "@/components/dashboard/dashboard-security-score";
 import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
 } from "@/components/ui/tooltip";
 
 // --- Types matching GET /api/dashboard/summary ---
@@ -415,30 +410,23 @@ export default function DashboardPage() {
           Quick Actions
         </h2>
         <div className="grid gap-3 sm:grid-cols-3">
-          {/* Open Extension */}
-          <TooltipProvider>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <div className="flex cursor-default items-center gap-3 rounded-lg border border-brand-border bg-brand-card p-4 transition-colors hover:border-brand-border-bright">
-                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-brand-accent/10">
-                    <Monitor className="h-5 w-5 text-brand-accent" />
-                  </div>
-                  <div>
-                    <p className="flex items-center gap-1.5 text-sm font-medium text-brand-text">
-                      Open Extension
-                      <Info className="h-3 w-3 text-brand-text-muted" />
-                    </p>
-                    <p className="text-xs text-brand-text-muted">
-                      Use the browser toolbar icon
-                    </p>
-                  </div>
-                </div>
-              </TooltipTrigger>
-              <TooltipContent>
-                <p>Click the Lockbox icon in your browser toolbar to open the extension</p>
-              </TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
+          {/* Open Extension — link to setup since web can't open popups */}
+          <Link
+            href="/dashboard/extension-setup"
+            className="flex items-center gap-3 rounded-lg border border-brand-border bg-brand-card p-4 transition-all hover:border-brand-border-bright hover:shadow-[0_0_20px_rgba(34,214,138,0.06)]"
+          >
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-brand-accent/10">
+              <Monitor className="h-5 w-5 text-brand-accent" />
+            </div>
+            <div>
+              <p className="text-sm font-medium text-brand-text">
+                Open Extension
+              </p>
+              <p className="text-xs text-brand-text-muted">
+                Press Alt+Shift+L or click toolbar icon
+              </p>
+            </div>
+          </Link>
 
           {/* Download Extension */}
           <Link
