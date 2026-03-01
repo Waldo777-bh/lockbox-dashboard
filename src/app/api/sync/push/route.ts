@@ -124,10 +124,19 @@ export async function POST(request: Request) {
       await db.auditLog.deleteMany({ where: { userId: user.id } });
     }
 
+    // Fetch user's current tier and licence key to send back to the extension
+    // so it can update its local config (e.g. after upgrading to Pro via Stripe)
+    const userRecord = await db.user.findUnique({
+      where: { id: user.id },
+      select: { tier: true, licenceKey: true },
+    });
+
     return NextResponse.json({
       success: true,
       syncedAt: vaultSync.syncedAt.toISOString(),
       version: vaultSync.version,
+      tier: userRecord?.tier ?? "free",
+      licenceKey: userRecord?.licenceKey ?? null,
     });
   } catch (error) {
     console.error("Sync push error:", error);
