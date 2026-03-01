@@ -59,7 +59,7 @@ export async function POST(request: NextRequest) {
           },
         });
 
-        console.log(`User ${userId} upgraded to Pro. Licence: ${licenceKey}`);
+        console.log(`User ${userId} upgraded to Pro tier`);
         break;
       }
 

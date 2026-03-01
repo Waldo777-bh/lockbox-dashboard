@@ -18,8 +18,6 @@ import { PortfolioStats } from "@/components/dashboard/portfolio-stats";
 import { ServiceCard } from "@/components/dashboard/service-card";
 import { VaultSummaryCard } from "@/components/dashboard/vault-summary-card";
 import { DashboardSecurityScore } from "@/components/dashboard/dashboard-security-score";
-import {
-} from "@/components/ui/tooltip";
 
 // --- Types matching GET /api/dashboard/summary ---
 
