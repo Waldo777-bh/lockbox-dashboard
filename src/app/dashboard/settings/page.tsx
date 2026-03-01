@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { useUser } from "@clerk/nextjs";
 import {
   User,
@@ -9,6 +10,7 @@ import {
   ExternalLink,
   Chrome,
   CreditCard,
+  RefreshCw,
 } from "lucide-react";
 import Link from "next/link";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -31,6 +33,8 @@ import { Suspense } from "react";
 
 export default function SettingsPage() {
   const { user, isLoaded } = useUser();
+  const [resetting, setResetting] = useState(false);
+  const [resetDone, setResetDone] = useState(false);
   const email =
     user?.emailAddresses[0]?.emailAddress ?? "unknown@example.com";
 
@@ -196,7 +200,39 @@ export default function SettingsPage() {
                   Irreversible actions that affect your account
                 </CardDescription>
               </CardHeader>
-              <CardContent>
+              <CardContent className="space-y-4">
+                <div className="rounded-md border border-brand-border bg-brand-surface p-4">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="font-medium text-brand-text">
+                        Clear Sync Data
+                      </p>
+                      <p className="text-sm text-brand-text-muted">
+                        Remove synced vault data, metadata, and activity history from the dashboard.
+                        Use this if stale data remains after deleting your extension wallet.
+                      </p>
+                    </div>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      disabled={resetting || resetDone}
+                      onClick={async () => {
+                        setResetting(true);
+                        try {
+                          const res = await fetch("/api/dashboard/reset-sync", { method: "POST" });
+                          if (res.ok) {
+                            setResetDone(true);
+                          }
+                        } catch {}
+                        setResetting(false);
+                      }}
+                    >
+                      <RefreshCw className={`mr-2 h-4 w-4 ${resetting ? "animate-spin" : ""}`} />
+                      {resetDone ? "Cleared" : resetting ? "Clearing..." : "Clear Data"}
+                    </Button>
+                  </div>
+                </div>
+
                 <div className="rounded-md border border-brand-danger/30 bg-brand-danger/5 p-4">
                   <div className="flex items-center justify-between">
                     <div>
