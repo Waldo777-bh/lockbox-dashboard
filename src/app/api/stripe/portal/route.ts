@@ -19,9 +19,16 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Resolve public-facing origin (Railway proxies → internal localhost)
+    const forwardedHost = request.headers.get("x-forwarded-host");
+    const forwardedProto = request.headers.get("x-forwarded-proto") || "https";
+    const baseUrl = forwardedHost
+      ? `${forwardedProto}://${forwardedHost}`
+      : process.env.NEXT_PUBLIC_APP_URL || request.nextUrl.origin;
+
     const session = await stripe.billingPortal.sessions.create({
       customer: dbUser.stripeCustomerId,
-      return_url: `${request.nextUrl.origin}/dashboard/settings`,
+      return_url: `${baseUrl}/dashboard/settings`,
     });
 
     return NextResponse.json({ url: session.url });

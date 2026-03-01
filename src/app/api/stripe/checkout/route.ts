@@ -28,6 +28,14 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Resolve the public-facing origin (Railway proxies requests, so
+    // request.nextUrl.origin returns the internal localhost:PORT).
+    const forwardedHost = request.headers.get("x-forwarded-host");
+    const forwardedProto = request.headers.get("x-forwarded-proto") || "https";
+    const baseUrl = forwardedHost
+      ? `${forwardedProto}://${forwardedHost}`
+      : process.env.NEXT_PUBLIC_APP_URL || request.nextUrl.origin;
+
     // Get or create Stripe customer
     let stripeCustomerId = (
       await db.user.findUnique({
@@ -52,8 +60,8 @@ export async function POST(request: NextRequest) {
       customer: stripeCustomerId,
       mode: "subscription",
       line_items: [{ price: priceId, quantity: 1 }],
-      success_url: `${request.nextUrl.origin}/dashboard/settings?upgraded=true`,
-      cancel_url: `${request.nextUrl.origin}/dashboard/pricing`,
+      success_url: `${baseUrl}/dashboard/settings?upgraded=true`,
+      cancel_url: `${baseUrl}/dashboard/pricing`,
       metadata: { lockboxUserId: user.id },
       subscription_data: {
         metadata: { lockboxUserId: user.id },
