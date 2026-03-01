@@ -3,7 +3,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { useDataRefresh } from "@/hooks/use-data-refresh";
 import {
   Lock,
   Key,
@@ -17,7 +16,7 @@ import {
   Folder,
   Star,
   Heart,
-  Pencil,
+  Info,
   type LucideIcon,
 } from "lucide-react";
 import {
@@ -28,7 +27,6 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
   Breadcrumb,
@@ -38,9 +36,6 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
-import { AddKeyDialog } from "@/components/keys/add-key-dialog";
-import { DeleteVaultDialog } from "@/components/vaults/delete-vault-dialog";
-import { EditVaultDialog } from "@/components/vaults/edit-vault-dialog";
 import { KeyRow } from "@/components/keys/key-row";
 import { PageTransition } from "@/components/layout/page-transition";
 
@@ -87,19 +82,15 @@ export default function VaultDetailPage({
 }) {
   const [vault, setVault] = useState<Vault | null>(null);
   const [loading, setLoading] = useState(true);
-  const [editOpen, setEditOpen] = useState(false);
   const [vaultId, setVaultId] = useState<string | null>(null);
   const router = useRouter();
 
-  // Resolve params
   useEffect(() => {
     params.then(({ id }) => setVaultId(id));
   }, [params]);
 
-  // Fetch vault data
   const fetchVault = useCallback(async () => {
     if (!vaultId) return;
-
     try {
       const res = await fetch(`/api/vaults/${vaultId}`);
       if (!res.ok) {
@@ -122,9 +113,6 @@ export default function VaultDetailPage({
     fetchVault();
   }, [fetchVault]);
 
-  // Re-fetch when any key/vault mutation occurs for this vault
-  useDataRefresh(fetchVault);
-
   if (loading || !vault) {
     return (
       <div className="space-y-6">
@@ -144,6 +132,13 @@ export default function VaultDetailPage({
   const color = vault.color || "#22d68a";
   const EmojiIcon = emojiIconMap[vault.emoji || "lock"] || Lock;
 
+  // Group keys by service for summary
+  const serviceGroups: Record<string, string[]> = {};
+  for (const key of vault.keys) {
+    if (!serviceGroups[key.service]) serviceGroups[key.service] = [];
+    serviceGroups[key.service].push(key.keyName);
+  }
+
   return (
     <PageTransition>
       <div className="space-y-6">
@@ -162,60 +157,52 @@ export default function VaultDetailPage({
           </BreadcrumbList>
         </Breadcrumb>
 
-        {/* Header with color accent */}
+        {/* Header */}
         <div
           className="rounded-lg border border-brand-border bg-brand-card p-6"
-          style={{
-            borderTopWidth: "3px",
-            borderTopColor: color,
-          }}
+          style={{ borderTopWidth: "3px", borderTopColor: color }}
         >
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div
-                className="flex h-10 w-10 items-center justify-center rounded-lg"
-                style={{ backgroundColor: `${color}15` }}
-              >
-                <EmojiIcon className="h-5 w-5" style={{ color }} />
-              </div>
-              <div>
-                <h2 className="text-2xl font-bold text-brand-text">
-                  {vault.name}
-                </h2>
-                {vault.description && (
-                  <p className="mt-0.5 text-sm text-brand-text-secondary">
-                    {vault.description}
-                  </p>
-                )}
-                <p className="mt-0.5 text-sm text-brand-text-muted">
-                  {vault.keys.length}{" "}
-                  {vault.keys.length === 1 ? "key" : "keys"} stored
-                </p>
-              </div>
+          <div className="flex items-center gap-3">
+            <div
+              className="flex h-10 w-10 items-center justify-center rounded-lg"
+              style={{ backgroundColor: `${color}15` }}
+            >
+              <EmojiIcon className="h-5 w-5" style={{ color }} />
             </div>
-            <div className="flex items-center gap-2">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setEditOpen(true)}
-              >
-                <Pencil className="mr-2 h-4 w-4" />
-                Edit
-              </Button>
-              <AddKeyDialog vaultId={vault.id} />
-              <DeleteVaultDialog vaultId={vault.id} vaultName={vault.name} />
+            <div>
+              <h2 className="text-2xl font-bold text-brand-text">
+                {vault.name}
+              </h2>
+              {vault.description && (
+                <p className="mt-0.5 text-sm text-brand-text-secondary">
+                  {vault.description}
+                </p>
+              )}
+              <p className="mt-0.5 text-sm text-brand-text-muted">
+                {vault.keys.length}{" "}
+                {vault.keys.length === 1 ? "key" : "keys"} &middot;{" "}
+                {Object.keys(serviceGroups).length}{" "}
+                {Object.keys(serviceGroups).length === 1 ? "service" : "services"}
+              </p>
             </div>
           </div>
         </div>
 
-        {/* Edit Vault Dialog */}
-        <EditVaultDialog
-          vault={vault}
-          open={editOpen}
-          onOpenChange={setEditOpen}
-        />
+        {/* Zero-knowledge info banner */}
+        <div className="flex items-start gap-3 rounded-lg border border-brand-border bg-brand-card p-4">
+          <Info className="mt-0.5 h-5 w-5 shrink-0 text-brand-accent" />
+          <div>
+            <p className="text-sm font-medium text-brand-text">
+              Key values are only available in the Lockbox extension
+            </p>
+            <p className="mt-1 text-xs text-brand-text-muted">
+              For security, the dashboard only shows key metadata (names, services, timestamps).
+              To view, copy, or manage actual key values, use the Lockbox wallet extension in your browser.
+            </p>
+          </div>
+        </div>
 
-        {/* Keys Table */}
+        {/* Keys Table — metadata only, no values */}
         {vault.keys.length === 0 ? (
           <Card>
             <CardHeader className="text-center">
@@ -225,7 +212,7 @@ export default function VaultDetailPage({
             </CardHeader>
             <CardContent className="text-center">
               <p className="text-sm text-brand-text-muted">
-                Add your first key to this vault using the button above.
+                Add keys using the Lockbox extension wallet in your browser toolbar.
               </p>
             </CardContent>
           </Card>
@@ -236,10 +223,10 @@ export default function VaultDetailPage({
                 <TableRow>
                   <TableHead>Service</TableHead>
                   <TableHead>Key Name</TableHead>
-                  <TableHead>Value</TableHead>
+                  <TableHead>Status</TableHead>
                   <TableHead>Project</TableHead>
                   <TableHead>Created</TableHead>
-                  <TableHead className="w-[180px]">Actions</TableHead>
+                  <TableHead>Reference</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
