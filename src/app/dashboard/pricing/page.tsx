@@ -68,7 +68,7 @@ export default function PricingPage() {
     },
     {
       q: "What happens to my extra vaults/keys if I downgrade?",
-      a: "They become read-only — nothing is deleted. You can still view and copy your existing keys, but you won't be able to create new vaults or keys beyond the Free tier limits until you upgrade again.",
+      a: "Your wallet reverts to Free tier limits: 1 vault with up to 25 keys. Any additional vaults and keys beyond these limits will be locked and inaccessible until you upgrade again. Nothing is deleted — upgrade anytime to restore full access.",
     },
     {
       q: "Is there a free trial?",
