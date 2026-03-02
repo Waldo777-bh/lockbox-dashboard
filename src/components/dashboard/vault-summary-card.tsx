@@ -26,7 +26,7 @@ export function VaultSummaryCard({
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3 }}
-      className="group min-w-[260px] shrink-0 rounded-lg border border-brand-border bg-brand-card p-4 transition-all duration-200 hover:border-brand-accent/30 hover:shadow-[0_0_20px_rgba(34,214,138,0.06)]"
+      className="group flex h-full min-w-[260px] w-[280px] shrink-0 flex-col rounded-lg border border-brand-border bg-brand-card p-4 transition-all duration-200 hover:border-brand-accent/30 hover:shadow-[0_0_20px_rgba(34,214,138,0.06)]"
     >
       {/* Header */}
       <div className="flex items-center gap-3">

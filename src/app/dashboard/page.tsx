@@ -363,10 +363,11 @@ export default function DashboardPage() {
           <h2 className="text-sm font-medium text-brand-text-secondary">
             Vaults ({metadata.vaults.length})
           </h2>
-          <div className="-mx-1 flex gap-4 overflow-x-auto px-1 pb-2 scrollbar-thin">
+          <div className="-mx-1 flex items-stretch gap-4 overflow-x-auto px-1 pb-2 scrollbar-thin">
             {metadata.vaults.map((vault, i) => (
               <motion.div
                 key={vault.id}
+                className="flex"
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: i * 0.08, duration: 0.3 }}

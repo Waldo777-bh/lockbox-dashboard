@@ -93,18 +93,20 @@ export function DashboardSecurityScore({
       </div>
 
       {/* Checklist */}
-      <div className="space-y-2.5">
+      <div className="space-y-3">
         {checks.map((check) => (
-          <div key={check.label} className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
+          <div key={check.label} className="flex items-start gap-2">
+            <div className="mt-0.5 shrink-0">
               {check.passed ? (
                 <CheckCircle className="h-4 w-4 text-brand-accent" />
               ) : (
                 <XCircle className="h-4 w-4 text-brand-text-muted" />
               )}
+            </div>
+            <div className="min-w-0">
               <span
                 className={cn(
-                  "text-sm",
+                  "text-sm leading-tight block",
                   check.passed
                     ? "text-brand-text"
                     : "text-brand-text-secondary"
@@ -112,10 +114,10 @@ export function DashboardSecurityScore({
               >
                 {check.label}
               </span>
+              <span className="text-[11px] text-brand-text-muted leading-tight">
+                {check.detail}
+              </span>
             </div>
-            <span className="text-xs text-brand-text-muted">
-              {check.detail}
-            </span>
           </div>
         ))}
       </div>
