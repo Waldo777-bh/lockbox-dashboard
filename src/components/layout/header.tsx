@@ -2,7 +2,7 @@
 
 import { usePathname } from "next/navigation";
 import Link from "next/link";
-import { Search, Plus, Bell, Lock, Key, Puzzle } from "lucide-react";
+import { Search, Plus, Bell, Lock, Key, Puzzle, Box } from "lucide-react";
 import { MobileNav } from "./mobile-nav";
 import { TierBadge } from "@/components/tier-badge";
 import { Button } from "@/components/ui/button";
@@ -120,6 +120,12 @@ export function Header({ onOpenSearch, vaultName }: HeaderProps) {
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-48">
+              <DropdownMenuItem asChild>
+                <Link href="/dashboard/vaults?create=true" className="flex items-center gap-2">
+                  <Box className="h-4 w-4" />
+                  Create Vault
+                </Link>
+              </DropdownMenuItem>
               <DropdownMenuItem asChild>
                 <Link href="/dashboard/vaults" className="flex items-center gap-2">
                   <Lock className="h-4 w-4" />
