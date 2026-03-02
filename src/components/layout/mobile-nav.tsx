@@ -6,6 +6,7 @@ import { usePathname } from "next/navigation";
 import { Lock, Menu } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { navItems } from "@/lib/navigation";
+import { TierBadge } from "@/components/tier-badge";
 import {
   Sheet,
   SheetContent,
@@ -66,6 +67,11 @@ export function MobileNav() {
             })}
           </ul>
         </nav>
+
+        {/* Tier Badge */}
+        <div className="mt-4 px-6">
+          <TierBadge />
+        </div>
       </SheetContent>
     </Sheet>
   );

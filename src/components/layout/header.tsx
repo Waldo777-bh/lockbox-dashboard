@@ -4,6 +4,7 @@ import { usePathname } from "next/navigation";
 import Link from "next/link";
 import { Search, Plus, Bell, Lock, Key, Puzzle } from "lucide-react";
 import { MobileNav } from "./mobile-nav";
+import { TierBadge } from "@/components/tier-badge";
 import { Button } from "@/components/ui/button";
 import {
   Breadcrumb,
@@ -89,6 +90,9 @@ export function Header({ onOpenSearch, vaultName }: HeaderProps) {
 
         {/* Actions */}
         <div className="flex items-center gap-x-2 lg:gap-x-3">
+          {/* Tier Badge */}
+          <TierBadge variant="compact" />
+
           {/* Search */}
           <Button
             variant="outline"

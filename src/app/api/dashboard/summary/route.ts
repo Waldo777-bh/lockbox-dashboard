@@ -6,7 +6,7 @@ export async function GET() {
   try {
     const user = await getCurrentUser();
 
-    const [vaultMetadata, vaultSync, recentAudit, extensionTokenCount] =
+    const [vaultMetadata, vaultSync, recentAudit, extensionTokenCount, userRecord] =
       await Promise.all([
         db.vaultMetadata.findUnique({
           where: { userId: user.id },
@@ -25,6 +25,10 @@ export async function GET() {
             userId: user.id,
             expiresAt: { gt: new Date() },
           },
+        }),
+        db.user.findUnique({
+          where: { id: user.id },
+          select: { tier: true, licenceKey: true },
         }),
       ]);
 
@@ -97,6 +101,7 @@ export async function GET() {
     }
 
     return NextResponse.json({
+      tier: userRecord?.tier ?? "free",
       sync: {
         isSynced,
         lastSyncedAt: vaultSync?.syncedAt?.toISOString() ?? null,

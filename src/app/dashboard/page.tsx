@@ -9,6 +9,8 @@ import {
   Download,
   Terminal,
   ArrowRight,
+  Crown,
+  Sparkles,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -61,6 +63,7 @@ interface ActivityEntry {
 }
 
 interface DashboardSummary {
+  tier: "free" | "pro" | "team";
   sync: SyncData;
   metadata: MetadataData | null;
   recentActivity: ActivityEntry[];
@@ -208,7 +211,8 @@ export default function DashboardPage() {
     );
   }
 
-  const { sync, metadata, recentActivity } = data;
+  const { tier, sync, metadata, recentActivity } = data;
+  const isPro = tier === "pro";
 
   return (
     <motion.div
@@ -217,6 +221,70 @@ export default function DashboardPage() {
       transition={{ duration: 0.3, ease: "easeOut" }}
       className="space-y-8"
     >
+      {/* Pro Plan Banner */}
+      {isPro ? (
+        <motion.div
+          initial={{ opacity: 0, y: -4 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.3 }}
+        >
+          <Link
+            href="/dashboard/settings"
+            className="flex items-center gap-3 rounded-xl border border-amber-400/20 bg-gradient-to-r from-amber-500/[0.07] via-yellow-400/[0.05] to-amber-500/[0.07] px-4 py-3 transition-all hover:border-amber-400/30 hover:shadow-[0_0_20px_rgba(251,191,36,0.08)]"
+          >
+            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-amber-400/15 border border-amber-400/20">
+              <Crown className="h-4.5 w-4.5 text-amber-400" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center gap-2">
+                <span className="text-sm font-semibold text-amber-400">
+                  Pro Plan
+                </span>
+                <span className="rounded-full bg-amber-400/15 px-2 py-0.5 text-[10px] font-bold text-amber-400 uppercase tracking-wider">
+                  Active
+                </span>
+              </div>
+              <p className="text-xs text-brand-text-muted mt-0.5">
+                Unlimited vaults, keys, cloud sync & priority support
+              </p>
+            </div>
+            <div className="flex items-center gap-1.5 text-xs text-brand-text-muted">
+              <span>Manage</span>
+              <ArrowRight className="h-3 w-3" />
+            </div>
+          </Link>
+        </motion.div>
+      ) : (
+        <motion.div
+          initial={{ opacity: 0, y: -4 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.3 }}
+        >
+          <Link
+            href="/dashboard/pricing"
+            className="flex items-center gap-3 rounded-xl border border-brand-border bg-brand-card px-4 py-3 transition-all hover:border-brand-accent/30 hover:shadow-[0_0_20px_rgba(0,216,122,0.06)]"
+          >
+            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-brand-accent/10 border border-brand-accent/20">
+              <Sparkles className="h-4.5 w-4.5 text-brand-accent" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center gap-2">
+                <span className="text-sm font-semibold text-brand-text">
+                  Free Plan
+                </span>
+              </div>
+              <p className="text-xs text-brand-text-muted mt-0.5">
+                Upgrade to Pro for unlimited vaults, keys & more — from $5/mo
+              </p>
+            </div>
+            <div className="flex items-center gap-1.5 text-xs text-brand-accent font-medium">
+              <span>Upgrade</span>
+              <ArrowRight className="h-3 w-3" />
+            </div>
+          </Link>
+        </motion.div>
+      )}
+
       {/* A. Sync Status Banner */}
       <SyncStatusBanner
         isSynced={sync.isSynced}
