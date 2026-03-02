@@ -17,6 +17,7 @@ import {
   Star,
   Heart,
   Info,
+  Pencil,
   type LucideIcon,
 } from "lucide-react";
 import {
@@ -27,6 +28,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
   Breadcrumb,
@@ -37,6 +39,7 @@ import {
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
 import { KeyRow } from "@/components/keys/key-row";
+import { EditVaultDialog } from "@/components/vaults/edit-vault-dialog";
 import { PageTransition } from "@/components/layout/page-transition";
 
 const emojiIconMap: Record<string, LucideIcon> = {
@@ -83,6 +86,7 @@ export default function VaultDetailPage({
   const [vault, setVault] = useState<Vault | null>(null);
   const [loading, setLoading] = useState(true);
   const [vaultId, setVaultId] = useState<string | null>(null);
+  const [editOpen, setEditOpen] = useState(false);
   const router = useRouter();
 
   useEffect(() => {
@@ -162,31 +166,52 @@ export default function VaultDetailPage({
           className="rounded-lg border border-brand-border bg-brand-card p-6"
           style={{ borderTopWidth: "3px", borderTopColor: color }}
         >
-          <div className="flex items-center gap-3">
-            <div
-              className="flex h-10 w-10 items-center justify-center rounded-lg"
-              style={{ backgroundColor: `${color}15` }}
-            >
-              <EmojiIcon className="h-5 w-5" style={{ color }} />
-            </div>
-            <div>
-              <h2 className="text-2xl font-bold text-brand-text">
-                {vault.name}
-              </h2>
-              {vault.description && (
-                <p className="mt-0.5 text-sm text-brand-text-secondary">
-                  {vault.description}
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div
+                className="flex h-10 w-10 items-center justify-center rounded-lg"
+                style={{ backgroundColor: `${color}15` }}
+              >
+                <EmojiIcon className="h-5 w-5" style={{ color }} />
+              </div>
+              <div>
+                <h2 className="text-2xl font-bold text-brand-text">
+                  {vault.name}
+                </h2>
+                {vault.description && (
+                  <p className="mt-0.5 text-sm text-brand-text-secondary">
+                    {vault.description}
+                  </p>
+                )}
+                <p className="mt-0.5 text-sm text-brand-text-muted">
+                  {vault.keys.length}{" "}
+                  {vault.keys.length === 1 ? "key" : "keys"} &middot;{" "}
+                  {Object.keys(serviceGroups).length}{" "}
+                  {Object.keys(serviceGroups).length === 1 ? "service" : "services"}
                 </p>
-              )}
-              <p className="mt-0.5 text-sm text-brand-text-muted">
-                {vault.keys.length}{" "}
-                {vault.keys.length === 1 ? "key" : "keys"} &middot;{" "}
-                {Object.keys(serviceGroups).length}{" "}
-                {Object.keys(serviceGroups).length === 1 ? "service" : "services"}
-              </p>
+              </div>
             </div>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setEditOpen(true)}
+              className="gap-1.5"
+            >
+              <Pencil className="h-3.5 w-3.5" />
+              Edit
+            </Button>
           </div>
         </div>
+
+        {/* Edit Vault Dialog */}
+        <EditVaultDialog
+          vault={vault}
+          open={editOpen}
+          onOpenChange={(open) => {
+            setEditOpen(open);
+            if (!open) fetchVault();
+          }}
+        />
 
         {/* Zero-knowledge info banner */}
         <div className="flex items-start gap-3 rounded-lg border border-brand-border bg-brand-card p-4">
