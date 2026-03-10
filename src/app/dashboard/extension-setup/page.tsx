@@ -61,6 +61,9 @@ function Step({ number, icon: Icon, title, children, isLast }: StepProps) {
   );
 }
 
+const CHROME_WEB_STORE_URL =
+  "https://chromewebstore.google.com/detail/lockbox/bcjcdgpmgmbibgngbkhfobidmnfddefa";
+
 export default function ExtensionSetupPage() {
   const [token, setToken] = useState<string | null>(null);
   const [generatingToken, setGeneratingToken] = useState(false);
@@ -111,7 +114,11 @@ export default function ExtensionSetupPage() {
             </p>
 
             <Button asChild className="mb-4">
-              <a href="#" target="_blank" rel="noopener noreferrer">
+              <a
+                href={CHROME_WEB_STORE_URL}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
                 <Download className="mr-2 h-4 w-4" />
                 Install from Chrome Web Store
                 <ExternalLink className="ml-2 h-3 w-3 opacity-50" />
