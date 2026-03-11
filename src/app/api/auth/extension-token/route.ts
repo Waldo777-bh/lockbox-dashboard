@@ -9,7 +9,7 @@ export async function POST() {
 
     // Generate a secure random token
     const token = randomBytes(32).toString("hex");
-    const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours
+    const expiresAt = new Date(Date.now() + 365 * 24 * 60 * 60 * 1000); // 1 year
 
     const extensionToken = await db.extensionToken.create({
       data: {

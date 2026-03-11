@@ -124,6 +124,16 @@ export async function POST(request: Request) {
       await db.auditLog.deleteMany({ where: { userId: user.id } });
     }
 
+    // Auto-renew extension token on each successful push (rolling 1-year expiry)
+    const authHeader = request.headers.get("authorization");
+    if (authHeader?.startsWith("Bearer ")) {
+      const token = authHeader.slice(7);
+      await db.extensionToken.updateMany({
+        where: { token, userId: user.id },
+        data: { expiresAt: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000) },
+      }).catch(() => {}); // Non-critical — don't fail sync if renewal fails
+    }
+
     // Fetch user's current tier and licence key to send back to the extension
     // so it can update its local config (e.g. after upgrading to Pro via Stripe)
     const userRecord = await db.user.findUnique({
