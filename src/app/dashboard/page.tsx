@@ -11,6 +11,7 @@ import {
   ArrowRight,
   Crown,
   Sparkles,
+  Filter,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -172,6 +173,7 @@ export default function DashboardPage() {
   const [data, setData] = useState<DashboardSummary | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [vaultFilter, setVaultFilter] = useState<string>("");
 
   const POLL_INTERVAL_MS = 30_000; // 30 seconds
   const pollRef = useRef<ReturnType<typeof setInterval>>(undefined);
@@ -343,48 +345,96 @@ export default function DashboardPage() {
       )}
 
       {/* C. Service Breakdown + Security Score */}
-      {metadata && metadata.services.length > 0 && (
-        <div className="space-y-4">
-          <h2 className="text-sm font-medium text-brand-text-secondary">
-            Services ({metadata.services.length})
-          </h2>
-          <div className="grid gap-4 lg:grid-cols-[1fr_300px]">
-            {/* Service cards grid */}
-            <motion.div
-              className="grid gap-4 sm:grid-cols-2"
-              variants={staggerContainer}
-              initial="hidden"
-              animate="show"
-            >
-              {metadata.services.map((svc) => (
-                <motion.div key={svc.name} variants={staggerItem}>
-                  <ServiceCard
-                    name={svc.name}
-                    keyCount={svc.keyCount}
-                    keyNames={svc.keyNames}
-                  />
-                </motion.div>
-              ))}
-            </motion.div>
+      {metadata && metadata.services.length > 0 && (() => {
+        // Filter services by selected vault
+        const selectedVault = vaultFilter
+          ? metadata.vaults.find((v) => v.id === vaultFilter)
+          : null;
+        const filteredServices = selectedVault
+          ? metadata.services.filter((svc) =>
+              selectedVault.services.some(
+                (vs) => vs.toLowerCase() === svc.name.toLowerCase()
+              )
+            )
+          : metadata.services;
 
-            {/* Security score sidebar */}
-            <div className="hidden lg:block">
+        return (
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <h2 className="text-sm font-medium text-brand-text-secondary">
+                Services ({filteredServices.length})
+              </h2>
+              {/* Vault filter dropdown */}
+              {metadata.vaults.length > 1 && (
+                <div className="flex items-center gap-2">
+                  <Filter className="h-3.5 w-3.5 text-brand-text-muted" />
+                  <select
+                    value={vaultFilter}
+                    onChange={(e) => setVaultFilter(e.target.value)}
+                    className="rounded-lg border border-brand-border bg-brand-card px-3 py-1.5 text-xs text-brand-text focus:border-brand-accent focus:outline-none transition-colors cursor-pointer appearance-none pr-7"
+                    style={{
+                      backgroundImage: `url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e")`,
+                      backgroundPosition: "right 0.4rem center",
+                      backgroundRepeat: "no-repeat",
+                      backgroundSize: "1.2em 1.2em",
+                    }}
+                  >
+                    <option value="">All Vaults</option>
+                    {metadata.vaults.map((vault) => (
+                      <option key={vault.id} value={vault.id}>
+                        {vault.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              )}
+            </div>
+            <div className="grid gap-4 lg:grid-cols-[1fr_300px]">
+              {/* Service cards grid */}
+              <motion.div
+                className="grid gap-4 sm:grid-cols-2"
+                variants={staggerContainer}
+                initial="hidden"
+                animate="show"
+                key={vaultFilter} // Re-animate when filter changes
+              >
+                {filteredServices.map((svc) => (
+                  <motion.div key={svc.name} variants={staggerItem}>
+                    <ServiceCard
+                      name={svc.name}
+                      keyCount={svc.keyCount}
+                      keyNames={svc.keyNames}
+                    />
+                  </motion.div>
+                ))}
+                {filteredServices.length === 0 && (
+                  <div className="col-span-2 rounded-lg border border-brand-border bg-brand-card p-6 text-center">
+                    <p className="text-sm text-brand-text-muted">
+                      No services in this vault.
+                    </p>
+                  </div>
+                )}
+              </motion.div>
+
+              {/* Security score sidebar */}
+              <div className="hidden lg:block">
+                <DashboardSecurityScore
+                  isSynced={sync.isSynced}
+                  metadata={metadata}
+                />
+              </div>
+            </div>
+
+            {/* Security score below on mobile */}
+            <div className="lg:hidden">
               <DashboardSecurityScore
                 isSynced={sync.isSynced}
                 metadata={metadata}
               />
             </div>
           </div>
-
-          {/* Security score below on mobile */}
-          <div className="lg:hidden">
-            <DashboardSecurityScore
-              isSynced={sync.isSynced}
-              metadata={metadata}
-            />
-          </div>
-        </div>
-      )}
+        );
+      })()}
 
       {/* D. Vault Summary Cards */}
       {metadata && metadata.vaults.length > 0 && (
