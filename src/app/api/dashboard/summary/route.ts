@@ -2,6 +2,8 @@ import { NextResponse } from "next/server";
 import { getCurrentUser } from "@/lib/auth";
 import { db } from "@/lib/db";
 
+export const dynamic = "force-dynamic"; // Never cache — polling relies on fresh data
+
 export async function GET() {
   try {
     const user = await getCurrentUser();

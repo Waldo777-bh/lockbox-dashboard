@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { formatDistanceToNow } from "date-fns";
@@ -173,21 +173,50 @@ export default function DashboardPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    async function fetchSummary() {
-      try {
-        const res = await fetch("/api/dashboard/summary");
-        if (!res.ok) throw new Error("Failed to load dashboard");
-        const json: DashboardSummary = await res.json();
-        setData(json);
-      } catch (err) {
+  const POLL_INTERVAL_MS = 30_000; // 30 seconds
+  const pollRef = useRef<ReturnType<typeof setInterval>>(undefined);
+
+  const fetchSummary = useCallback(async (isInitial = false) => {
+    try {
+      const res = await fetch("/api/dashboard/summary");
+      if (!res.ok) throw new Error("Failed to load dashboard");
+      const json: DashboardSummary = await res.json();
+      setData(json);
+      if (isInitial) setError(null);
+    } catch (err) {
+      if (isInitial) {
         setError(err instanceof Error ? err.message : "Something went wrong");
-      } finally {
-        setLoading(false);
       }
+      // Silently ignore polling errors to avoid flashing error state
+    } finally {
+      if (isInitial) setLoading(false);
     }
-    fetchSummary();
   }, []);
+
+  // Initial fetch + polling interval
+  useEffect(() => {
+    fetchSummary(true);
+
+    pollRef.current = setInterval(() => fetchSummary(false), POLL_INTERVAL_MS);
+    return () => clearInterval(pollRef.current);
+  }, [fetchSummary]);
+
+  // Pause polling when tab is hidden, resume when visible
+  useEffect(() => {
+    const handler = () => {
+      if (document.hidden) {
+        clearInterval(pollRef.current);
+      } else {
+        fetchSummary(false); // Immediate refresh on tab focus
+        pollRef.current = setInterval(() => fetchSummary(false), POLL_INTERVAL_MS);
+      }
+    };
+    document.addEventListener("visibilitychange", handler);
+    return () => {
+      document.removeEventListener("visibilitychange", handler);
+      clearInterval(pollRef.current);
+    };
+  }, [fetchSummary]);
 
   if (loading) {
     return (
