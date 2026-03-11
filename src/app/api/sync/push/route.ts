@@ -124,13 +124,13 @@ export async function POST(request: Request) {
       await db.auditLog.deleteMany({ where: { userId: user.id } });
     }
 
-    // Auto-renew extension token on each successful push (rolling 1-year expiry)
+    // Auto-renew extension token on each successful push (rolling 10-year expiry)
     const authHeader = request.headers.get("authorization");
     if (authHeader?.startsWith("Bearer ")) {
       const token = authHeader.slice(7);
       await db.extensionToken.updateMany({
         where: { token, userId: user.id },
-        data: { expiresAt: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000) },
+        data: { expiresAt: new Date(Date.now() + 10 * 365 * 24 * 60 * 60 * 1000) },
       }).catch(() => {}); // Non-critical — don't fail sync if renewal fails
     }
 
