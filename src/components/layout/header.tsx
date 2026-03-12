@@ -2,7 +2,7 @@
 
 import { usePathname } from "next/navigation";
 import Link from "next/link";
-import { Search, Plus, Bell, Lock, Key, Puzzle, Box } from "lucide-react";
+import { Search, Plus, Bell, Lock, Key, Puzzle, Box, Sun, Moon } from "lucide-react";
 import { MobileNav } from "./mobile-nav";
 import { TierBadge } from "@/components/tier-badge";
 import { Button } from "@/components/ui/button";
@@ -20,6 +20,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { useTheme } from "./theme-provider";
 
 interface HeaderProps {
   onOpenSearch?: () => void;
@@ -58,6 +59,7 @@ function useBreadcrumbs(vaultName?: string) {
 
 export function Header({ onOpenSearch, vaultName }: HeaderProps) {
   const crumbs = useBreadcrumbs(vaultName);
+  const { theme, toggleTheme } = useTheme();
 
   return (
     <header className="sticky top-0 z-40 flex h-16 shrink-0 items-center gap-x-4 border-b border-brand-border bg-brand-bg/80 px-4 backdrop-blur-sm sm:gap-x-6 sm:px-6 lg:px-8">
@@ -146,6 +148,21 @@ export function Header({ onOpenSearch, vaultName }: HeaderProps) {
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
+
+          {/* Theme Toggle */}
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={toggleTheme}
+            className="relative text-brand-text-muted hover:text-brand-text-secondary transition-colors"
+            aria-label={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
+          >
+            {theme === "dark" ? (
+              <Sun className="h-5 w-5" />
+            ) : (
+              <Moon className="h-5 w-5" />
+            )}
+          </Button>
 
           {/* Notifications */}
           <Button

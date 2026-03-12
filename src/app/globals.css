@@ -5,57 +5,78 @@
 @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap');
 
 @layer base {
-  :root {
-    --background: 220 20% 4%;
-    --foreground: 228 20% 93%;
-    --card: 222 18% 10%;
-    --card-foreground: 228 20% 93%;
-    --popover: 222 18% 10%;
-    --popover-foreground: 228 20% 93%;
-    --primary: 155 72% 49%;
-    --primary-foreground: 220 20% 4%;
-    --secondary: 222 16% 14%;
-    --secondary-foreground: 228 20% 93%;
-    --muted: 222 16% 14%;
-    --muted-foreground: 226 12% 50%;
-    --accent: 155 72% 49%;
-    --accent-foreground: 220 20% 4%;
-    --destructive: 352 76% 59%;
-    --destructive-foreground: 228 20% 93%;
-    --border: 222 16% 17%;
-    --input: 222 16% 17%;
-    --ring: 155 72% 49%;
+  /* N5: Theme-aware brand palette via CSS custom properties */
+  /* N5: RGB triplets enable Tailwind opacity modifiers (e.g. bg-brand-accent/10) */
+  :root,
+  .dark {
     --radius: 0.5rem;
     --sidebar-width: 256px;
     --sidebar-collapsed-width: 64px;
-  }
-}
 
-@layer base {
+    --brand-bg: 15 15 20;
+    --brand-bg-secondary: 15 18 24;
+    --brand-bg-tertiary: 26 26 36;
+    --brand-card: 26 26 36;
+    --brand-card-hover: 34 34 48;
+    --brand-border: 42 42 58;
+    --brand-border-bright: 58 58 74;
+    --brand-text: 232 234 240;
+    --brand-text-secondary: 139 146 165;
+    --brand-text-muted: 90 97 120;
+    --brand-accent: 0 216 122;
+    --brand-accent-dim: 0 179 104;
+    --brand-pro: 255 215 0;
+    --brand-warning: 240 167 68;
+    --brand-danger: 232 72 92;
+    --brand-blue: 74 158 255;
+    --brand-purple: 155 122 255;
+  }
+
+  .light {
+    --brand-bg: 245 245 247;
+    --brand-bg-secondary: 240 240 244;
+    --brand-bg-tertiary: 232 232 238;
+    --brand-card: 255 255 255;
+    --brand-card-hover: 245 245 247;
+    --brand-border: 224 224 230;
+    --brand-border-bright: 200 200 208;
+    --brand-text: 26 26 36;
+    --brand-text-secondary: 90 97 120;
+    --brand-text-muted: 139 146 165;
+    --brand-accent: 0 179 104;
+    --brand-accent-dim: 0 154 90;
+    --brand-pro: 184 150 12;
+    --brand-warning: 217 119 6;
+    --brand-danger: 220 38 38;
+    --brand-blue: 37 99 235;
+    --brand-purple: 124 58 237;
+  }
+
   * {
-    border-color: hsl(var(--border));
+    @apply border-brand-border;
   }
 
   body {
     @apply bg-brand-bg text-brand-text font-sans antialiased;
+    transition: background-color 0.3s ease, color 0.3s ease;
   }
 
-  /* Custom scrollbar for dark theme */
+  /* Custom scrollbar — theme-aware */
   ::-webkit-scrollbar {
     width: 8px;
     height: 8px;
   }
 
   ::-webkit-scrollbar-track {
-    background: #0f1218;
+    background: rgb(var(--brand-bg-secondary));
   }
 
   ::-webkit-scrollbar-thumb {
-    background: #2a3142;
+    background: rgb(var(--brand-border));
     border-radius: 4px;
   }
 
   ::-webkit-scrollbar-thumb:hover {
-    background: #3a4252;
+    background: rgb(var(--brand-border-bright));
   }
 }

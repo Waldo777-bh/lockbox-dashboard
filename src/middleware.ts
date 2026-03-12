@@ -37,7 +37,9 @@ export default clerkMiddleware(async (auth, request) => {
   }
 
   // Extension routes accept Bearer tokens — let route handler validate
+  // Also pass through CORS preflight (OPTIONS) so the browser can check headers
   if (isExtensionRoute(request)) {
+    if (request.method === "OPTIONS") return;
     const authHeader = request.headers.get("authorization");
     if (authHeader?.startsWith("Bearer ")) {
       return;

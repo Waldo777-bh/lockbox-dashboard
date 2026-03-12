@@ -8,21 +8,27 @@ const rateLimitMap = new Map<string, RateLimitEntry>();
 const WINDOW_MS = 60 * 1000; // 60 seconds
 const MAX_REQUESTS = 30;
 
-// Clean up expired entries periodically
-setInterval(() => {
+// NOTE: This in-memory rate limiter only works within a single process.
+// In serverless deployments (Vercel/Railway), each invocation may get a
+// fresh process. For production, consider Upstash Redis or Vercel KV.
+
+function cleanupExpired() {
   const now = Date.now();
   for (const [key, entry] of rateLimitMap.entries()) {
     if (now - entry.windowStart > WINDOW_MS) {
       rateLimitMap.delete(key);
     }
   }
-}, 60 * 1000);
+}
 
 export function checkRateLimit(userId: string): {
   success: boolean;
   remaining: number;
   resetAt: Date;
 } {
+  // Inline cleanup instead of setInterval (avoids timer leak in serverless)
+  cleanupExpired();
+
   const now = Date.now();
   const entry = rateLimitMap.get(userId);
 

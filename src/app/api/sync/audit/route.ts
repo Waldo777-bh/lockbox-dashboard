@@ -2,6 +2,11 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { db } from "@/lib/db";
 import { authenticateRequest } from "@/lib/extension-auth";
+import { getCorsHeaders, handleCorsOptions } from "@/lib/cors";
+
+export async function OPTIONS(request: Request) {
+  return handleCorsOptions(request);
+}
 
 const auditEntrySchema = z.object({
   timestamp: z.string(),
@@ -46,12 +51,14 @@ export async function POST(request: Request) {
       })),
     });
 
-    return NextResponse.json({ received: entries.length });
+    const corsHeaders = getCorsHeaders(request);
+    return NextResponse.json({ received: entries.length }, { headers: corsHeaders });
   } catch (error) {
     console.error("Sync audit error:", error);
+    const corsHeaders = getCorsHeaders(request);
     return NextResponse.json(
       { error: "Internal server error" },
-      { status: 500 }
+      { status: 500, headers: corsHeaders }
     );
   }
 }

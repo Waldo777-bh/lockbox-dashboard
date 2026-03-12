@@ -49,7 +49,10 @@ export async function getCurrentUser() {
 export async function requireUser() {
   try {
     return await getCurrentUser();
-  } catch {
-    return null;
+  } catch (error) {
+    if (error instanceof Error && error.message === "Unauthorized") {
+      return null;
+    }
+    throw error;
   }
 }
